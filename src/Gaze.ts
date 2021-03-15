@@ -1,3 +1,5 @@
+
+
 class Gaze {
     
     private connected: boolean = false;
@@ -34,25 +36,24 @@ class Gaze {
         
     }
 
-    async on<T>( topics: string[], callback: (t: T) => void ) {
+    getHubUrl(): string {
+        return this.hubUrl;
+    }
 
-        if (this.connected == false){
+    removeCallback(id: string) {
+
+    }
+
+    async on<T>( topicsCallback: () => string[], callback: (t: T) => void ) {
+        if (!this.connected){
             throw new Error("Gaze is not connected to a hub");
         }
         
         // TODO: unique id generator
         let callbackId = this.callbacks.length.toString();
 
-        this.callbacks.push({callbackId, callback})
-
-        await fetch(`${this.hubUrl}/subscription`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${this.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ callbackId, topics })
-        })
+        this.callbacks.push({callbackId, callback});
+        return new GazeSub(this, callbackId, topicsCallback);
     }
 }
 
