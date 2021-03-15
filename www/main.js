@@ -24,57 +24,61 @@
         };
       });
     }
-    on(topics, callback) {
-      if (this.connected == false) {
+    async on(topicsCallback, payloadCallback) {
+      if (!this.connected) {
         throw new Error("Gaze is not connected to a hub");
       }
       let callbackId = this.callbacks.length.toString();
-      this.callbacks.push({callbackId, callback});
-      fetch(`${this.hubUrl}/subscription`, {
-        method: "POST",
+      let topics = await topicsCallback();
+      let callback = {callbackId, payloadCallback, isBusy: false};
+      this.callbacks.push(callback);
+      await this.subscribeRequest(null, "POST", {callbackId, topics});
+      let abortController = null;
+      return {
+        update: async () => {
+          if (callback.isBusy)
+            return;
+          callback.isBusy = true;
+          if (abortController != null) {
+            abortController.abort();
+          }
+          abortController = new AbortController();
+          let newTopics = await topicsCallback();
+          let topicsToRemove = topics.filter((t) => !newTopics.includes(t));
+          let topicsToAdd = newTopics.filter((t) => !topics.includes(t));
+          await this.subscribeRequest(abortController, "DELETE", {topics: topicsToRemove});
+          await this.subscribeRequest(abortController, "POST", {callbackId, topics: topicsToAdd});
+          topics = newTopics;
+          callback.isBusy = false;
+        }
+      };
+    }
+    subscribeRequest(abortController, method, data) {
+      return fetch(`${this.hubUrl}/subscription`, {
+        method,
+        signal: abortController == null ? null : abortController.signal,
         headers: {
           Authorization: `Bearer ${this.token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({callbackId, topics})
+        body: JSON.stringify(data)
       });
     }
   };
   var Gaze_default = Gaze;
 
   // src/main.ts
-  var getInputVal = (selector) => document.querySelector(selector).value;
-  var genUuid = () => Math.random().toString(36).substring(7);
-  window.main = function() {
-    return {
-      connected: false,
-      gaze: null,
-      listeners: {},
-      async init() {
-        this.gaze = await new Gaze_default("http://localhost:8000", "http://localhost:8001/token.php").connect();
-        this.connected = true;
-      },
-      async subscribe() {
-        let topics = getInputVal("#topics");
-        topics = JSON.parse(topics);
-        let uuid = genUuid();
-        this.listeners[uuid] = {
-          meta: {topics},
-          recieved: []
-        };
-        this.gaze.on(topics, (payload) => {
-          this.listeners[uuid].recieved.push(payload);
-        });
-      },
-      async emit() {
-        let topic = getInputVal("#emit-topic");
-        let payload = JSON.parse(document.querySelector("#emit-payload").innerHTML);
-        let roles = JSON.parse(getInputVal("#emit-roles"));
-        await fetch("http://localhost:8001/emit.php", {
-          method: "POST",
-          body: JSON.stringify({topic, payload, roles})
-        });
-      }
-    };
-  };
+  (async () => {
+    const gaze = await new Gaze_default("http://localhost:3333", "http://localhost:8001/token.php").connect();
+    let products = [1, 2, 3];
+    let sub = await gaze.on(() => products.map((id) => `ProductCreated/${id}`), (payload) => {
+      console.log(payload);
+    });
+    products = [2, 3, 4];
+    sub.update();
+    products = [10, 11, 12];
+    sub.update();
+    products = [22, 33, 33];
+    sub.update();
+  })();
 })();
