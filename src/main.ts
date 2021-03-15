@@ -17,18 +17,16 @@ const genUuid = () : string => Math.random().toString(36).substring(7);
 
         async subscribe(){
 
-            let topic = getInputVal("#topic");
-            let field = getInputVal("#field");
-            let operator = getInputVal("#operator");
-            let value = getInputVal("#value");
+            let topics = getInputVal("#topics");
+            topics = JSON.parse(topics);
 
             let uuid = genUuid();
             this.listeners[uuid] = {
-                meta: { topic,field,operator,value },
+                meta: { topics },
                 recieved: []
             };
 
-            this.gaze.on(topic, [field, operator, value], (payload: any) => {
+            this.gaze.on(topics, (payload: any) => {
                 this.listeners[uuid].recieved.push(payload);
             });
 

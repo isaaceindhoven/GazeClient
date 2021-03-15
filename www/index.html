@@ -27,23 +27,8 @@
             </div>
 
             <div class="flex items-center mb-3">
-                <label class="w-28">Topic:</label>
-                <input id="topic" class="px-2 py-1 rounded" type="text" value="ProductCreated">
-            </div>
-
-            <div class="flex items-center mb-3">
-                <label class="w-28">Field:</label>
-                <input id="field" class="px-2 py-1 rounded" type="text" value="id">
-            </div>
-
-            <div class="flex items-center mb-3">
-                <label class="w-28">Operator:</label>
-                <input id="operator" class="px-2 py-1 rounded" type="text" value="==">
-            </div>
-
-            <div class="flex items-center mb-3">
-                <label class="w-28">Value:</label>
-                <input id="value" class="px-2 py-1 rounded" type="text" value="1">
+                <label class="w-28">Topics:</label>
+                <input id="topics" class="px-2 py-1 rounded" type="text" value='["ProductCreated"]'>
             </div>
 
             <div @click="subscribe()" class="ml-28 bg-purple-500 px-2 py-1 hover:bg-purple-600 text-white rounded cursor-pointer">
@@ -96,8 +81,7 @@
         <template x-for="k in Object.keys(listeners)" :key="k">
             <div class="relative border rounded p-3 bg-blue-100 text-blue-600 mb-4">
                 <div class="flex items-center">
-                    <div class="font-semibold" x-text="listeners[k].meta.topic"></div>
-                    <div class="ml-4" x-text="`${listeners[k].meta.field} ${listeners[k].meta.operator} ${listeners[k].meta.value}`"></div>
+                    <div class="font-semibold" x-text="JSON.stringify(listeners[k].meta.topics)"></div>
                 </div>
                 <div x-text="JSON.stringify(listeners[k].recieved)"></div>
             </div>

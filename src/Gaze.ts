@@ -1,11 +1,9 @@
-type fieldOperator = '==' | '!=' | '>=' | '<=' | '>' | '<' | 'in' | 'regex';
-
 class Gaze {
     
     private connected: boolean = false;
     private SSE: null | EventSource = null;
     private token: null | string = null;
-    private callbacks: {callbackId : number, callback: CallableFunction}[] = [];
+    private callbacks: {callbackId : string, callback: CallableFunction}[] = [];
 
     constructor(
         private hubUrl: string, 
@@ -36,37 +34,24 @@ class Gaze {
         
     }
 
-    on<T>( topic: string, selector: [string, fieldOperator, any] | null, callback: (t: T) => void ){
+    async on<T>( topics: string[], callback: (t: T) => void ) {
 
         if (this.connected == false){
             throw new Error("Gaze is not connected to a hub");
         }
         
         // TODO: unique id generator
-        let callbackId = this.callbacks.length;
-        
+        let callbackId = this.callbacks.length.toString();
+
         this.callbacks.push({callbackId, callback})
 
-        let formatedSelector = null;
-        if (selector != null) {
-            formatedSelector = {
-                'field' : selector[0],
-                'operator' : selector[1],
-                'value' : selector[2],
-            }
-        }
-
-        fetch(`${this.hubUrl}/subscription`, {
+        await fetch(`${this.hubUrl}/subscription`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${this.token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ 
-                callbackId, 
-                topic, 
-                selector : formatedSelector
-            })
+            body: JSON.stringify({ callbackId, topics })
         })
     }
 }

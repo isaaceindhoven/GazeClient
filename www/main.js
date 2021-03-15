@@ -24,31 +24,19 @@
         };
       });
     }
-    on(topic, selector, callback) {
+    on(topics, callback) {
       if (this.connected == false) {
         throw new Error("Gaze is not connected to a hub");
       }
-      let callbackId = this.callbacks.length;
+      let callbackId = this.callbacks.length.toString();
       this.callbacks.push({callbackId, callback});
-      let formatedSelector = null;
-      if (selector != null) {
-        formatedSelector = {
-          field: selector[0],
-          operator: selector[1],
-          value: selector[2]
-        };
-      }
       fetch(`${this.hubUrl}/subscription`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${this.token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          callbackId,
-          topic,
-          selector: formatedSelector
-        })
+        body: JSON.stringify({callbackId, topics})
       });
     }
   };
@@ -67,16 +55,14 @@
         this.connected = true;
       },
       async subscribe() {
-        let topic = getInputVal("#topic");
-        let field = getInputVal("#field");
-        let operator = getInputVal("#operator");
-        let value = getInputVal("#value");
+        let topics = getInputVal("#topics");
+        topics = JSON.parse(topics);
         let uuid = genUuid();
         this.listeners[uuid] = {
-          meta: {topic, field, operator, value},
+          meta: {topics},
           recieved: []
         };
-        this.gaze.on(topic, [field, operator, value], (payload) => {
+        this.gaze.on(topics, (payload) => {
           this.listeners[uuid].recieved.push(payload);
         });
       },
