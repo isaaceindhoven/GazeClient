@@ -51,7 +51,7 @@ class GazeJs {
 
     private async update(subscription : Subscription, topicsCallback: () => string[]){
         let newTopics = await topicsCallback();
-        newTopics = [...new Set(newTopics)];
+        newTopics = Array.from(new Set(newTopics));
 
         let topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
         let topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
@@ -93,4 +93,4 @@ class GazeJs {
     }
 }
 
-export { GazeJs }
+export default GazeJs;

@@ -14,4 +14,4 @@ declare class GazeJs {
     private subscribeRequest;
     private generateCallbackId;
 }
-export { GazeJs };
+export default GazeJs;
