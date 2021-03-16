@@ -1,7 +1,7 @@
 import Gaze from "./Gaze";
 
 (async () => {
-    const gaze = await new Gaze("http://localhost:3333" , "http://localhost:8001/token.php").connect();
+    (window as any).gaze = await new Gaze("http://localhost:3333" , "http://localhost:8001/token.php").connect();
 
     let products = [1,2,3];
 
@@ -17,5 +17,4 @@ import Gaze from "./Gaze";
 
     products = [22,33,33];
     sub.update();
-
 })();

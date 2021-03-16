@@ -1,4 +1,37 @@
 (() => {
+  // src/Queue.ts
+  var Queue = class {
+    constructor() {
+      this.queue = [];
+      this.isBusy = false;
+    }
+    add(callback) {
+      this.queue.push(callback);
+      this.process();
+    }
+    async process() {
+      if (this.isBusy || this.queue.length == 0)
+        return;
+      this.isBusy = true;
+      await this.queue[0]();
+      this.queue.shift();
+      this.isBusy = false;
+      this.process();
+    }
+  };
+  var Queue_default = Queue;
+
+  // src/Subscription.ts
+  var Subscription = class {
+    constructor(callbackId, payloadCallback) {
+      this.callbackId = callbackId;
+      this.payloadCallback = payloadCallback;
+      this.topics = [];
+      this.queue = new Queue_default();
+    }
+  };
+  var Subscription_default = Subscription;
+
   // src/Gaze.ts
   var Gaze = class {
     constructor(hubUrl, tokenUrl) {
@@ -7,7 +40,7 @@
       this.connected = false;
       this.SSE = null;
       this.token = null;
-      this.callbacks = [];
+      this.subscriptions = [];
     }
     async connect() {
       return new Promise(async (resolve) => {
@@ -16,7 +49,7 @@
         this.SSE = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
         this.SSE.onmessage = (m) => {
           let data = JSON.parse(m.data);
-          this.callbacks.find((c) => c.callbackId == data.callbackId)?.callback(data.payload);
+          this.subscriptions.find((s) => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
         };
         this.SSE.onopen = () => {
           this.connected = true;
@@ -25,38 +58,37 @@
       });
     }
     async on(topicsCallback, payloadCallback) {
-      if (!this.connected) {
+      if (!this.connected)
         throw new Error("Gaze is not connected to a hub");
-      }
-      let callbackId = this.callbacks.length.toString();
-      let topics = await topicsCallback();
-      let callback = {callbackId, payloadCallback, isBusy: false};
-      this.callbacks.push(callback);
-      await this.subscribeRequest(null, "POST", {callbackId, topics});
-      let abortController = null;
+      let subscription = new Subscription_default(this.generateCallbackId(), payloadCallback);
+      this.subscriptions.push(subscription);
+      this.update(subscription, topicsCallback);
       return {
-        update: async () => {
-          if (callback.isBusy)
-            return;
-          callback.isBusy = true;
-          if (abortController != null) {
-            abortController.abort();
-          }
-          abortController = new AbortController();
-          let newTopics = await topicsCallback();
-          let topicsToRemove = topics.filter((t) => !newTopics.includes(t));
-          let topicsToAdd = newTopics.filter((t) => !topics.includes(t));
-          await this.subscribeRequest(abortController, "DELETE", {topics: topicsToRemove});
-          await this.subscribeRequest(abortController, "POST", {callbackId, topics: topicsToAdd});
-          topics = newTopics;
-          callback.isBusy = false;
-        }
+        update: () => this.update(subscription, topicsCallback)
       };
     }
-    subscribeRequest(abortController, method, data) {
+    async update(subscription, topicsCallback) {
+      let newTopics = await topicsCallback();
+      let topicsToRemove = subscription.topics.filter((t) => !newTopics.includes(t));
+      let topicsToAdd = newTopics.filter((t) => !subscription.topics.includes(t));
+      if (topicsToRemove.length + topicsToAdd.length == 0)
+        return;
+      subscription.queue.add(async () => {
+        if (topicsToRemove.length > 0) {
+          await this.subscribeRequest("DELETE", {topics: topicsToRemove});
+        }
+        if (topicsToAdd.length > 0) {
+          await this.subscribeRequest("POST", {
+            callbackId: subscription.callbackId,
+            topics: topicsToAdd
+          });
+        }
+      });
+      subscription.topics = newTopics;
+    }
+    subscribeRequest(method, data) {
       return fetch(`${this.hubUrl}/subscription`, {
         method,
-        signal: abortController == null ? null : abortController.signal,
         headers: {
           Authorization: `Bearer ${this.token}`,
           "Content-Type": "application/json"
@@ -64,12 +96,19 @@
         body: JSON.stringify(data)
       });
     }
+    generateCallbackId() {
+      let UUID = Math.random().toString(36).substring(7);
+      if (this.subscriptions.find((s) => s.callbackId == UUID) == null) {
+        return UUID;
+      }
+      return this.generateCallbackId();
+    }
   };
   var Gaze_default = Gaze;
 
   // src/main.ts
   (async () => {
-    const gaze = await new Gaze_default("http://localhost:3333", "http://localhost:8001/token.php").connect();
+    window.gaze = await new Gaze_default("http://localhost:3333", "http://localhost:8001/token.php").connect();
     let products = [1, 2, 3];
     let sub = await gaze.on(() => products.map((id) => `ProductCreated/${id}`), (payload) => {
       console.log(payload);

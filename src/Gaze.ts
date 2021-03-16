@@ -1,15 +1,11 @@
-type CallBack = { 
-    callbackId : string, 
-    payloadCallback: CallableFunction,
-    isBusy: boolean
-};
+import Subscription from "./Subscription";
 
 class Gaze {
     
     private connected: boolean = false;
     private SSE: null | EventSource = null;
     private token: null | string = null;
-    private callbacks: CallBack[] = [];
+    private subscriptions: Subscription[] = [];
 
     constructor(
         private hubUrl: string, 
@@ -27,7 +23,7 @@ class Gaze {
 
             this.SSE.onmessage = m => {
                 let data : any = JSON.parse(m.data);
-                this.callbacks.find(c => c.callbackId == data.callbackId)?.callback(data.payload);
+                this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
             }
 
             this.SSE.onopen = () => {
@@ -39,61 +35,59 @@ class Gaze {
     }
 
     async on<T>( topicsCallback: () => string[], payloadCallback: (t: T) => void ) {
-        if (!this.connected){
-            throw new Error("Gaze is not connected to a hub");
-        }
         
-        // TODO: unique id generator
-        let callbackId = this.callbacks.length.toString();
-        let topics = await topicsCallback();
+        if (!this.connected) throw new Error("Gaze is not connected to a hub");
 
-        let callback: CallBack = { callbackId, payloadCallback, isBusy: false };
+        let subscription = new Subscription(this.generateCallbackId(), payloadCallback);
 
-        this.callbacks.push(callback);
+        this.subscriptions.push(subscription);
 
-        await this.subscribeRequest(null, "POST", { callbackId, topics });
-
-        let abortController: AbortController | null = null;
+        this.update(subscription, topicsCallback);
 
         return {
-            "update" : async () => {
-
-                if (callback.isBusy) return;
-
-                callback.isBusy = true;
-
-                if (abortController != null){
-                    abortController.abort();
-                }
-
-                abortController = new AbortController();
-
-                let newTopics = await topicsCallback();
-
-                let topicsToRemove = topics.filter(t => !newTopics.includes(t));
-                let topicsToAdd = newTopics.filter(t => !topics.includes(t));
-
-                await this.subscribeRequest(abortController, "DELETE", { topics: topicsToRemove });
-
-                await this.subscribeRequest(abortController, "POST", { callbackId, topics: topicsToAdd });
-
-                topics = newTopics;
-
-                callback.isBusy = false;
-            }
+            update: () => this.update(subscription, topicsCallback)
         }
     }
 
-    private subscribeRequest(abortController: AbortController | null, method: "POST" | "DELETE", data: any){
+    private async update(subscription : Subscription, topicsCallback: () => string[]){
+        let newTopics = await topicsCallback();
+        let topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
+        let topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
+
+        if (topicsToRemove.length + topicsToAdd.length == 0) return;
+
+        subscription.queue.add(async() => {
+            if (topicsToRemove.length > 0){
+                await this.subscribeRequest("DELETE", { topics: topicsToRemove });
+            }
+            if (topicsToAdd.length > 0){
+                await this.subscribeRequest("POST", { 
+                    callbackId: subscription.callbackId, 
+                    topics: topicsToAdd 
+                });
+            }
+        });
+
+        subscription.topics = newTopics;
+    }
+
+    private subscribeRequest(method: "POST" | "DELETE", data: any){
         return fetch(`${this.hubUrl}/subscription`, {
             method,
-            signal: abortController == null ? null : abortController.signal,
             headers: {
                 'Authorization': `Bearer ${this.token}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(data)
         });
+    }
+
+    private generateCallbackId() : string{
+        let UUID = Math.random().toString(36).substring(7);
+        if (this.subscriptions.find(s => s.callbackId == UUID) == null){
+            return UUID;
+        }
+        return this.generateCallbackId();
     }
 }
 
