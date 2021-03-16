@@ -1,1 +1,0 @@
-alias watch="npx esbuild src/main.ts --bundle  --outfile=www/main.js --watch";

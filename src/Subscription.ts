@@ -1,6 +1,6 @@
-import Queue from "./Queue";
+import { Queue } from "./Queue";
 
-export default class Subscription {
+class Subscription {
     
     public topics : string[] = [];
     public queue : Queue = new Queue();
@@ -13,3 +13,5 @@ export default class Subscription {
     }
     
 }
+
+export { Subscription }

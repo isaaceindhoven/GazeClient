@@ -1,6 +1,6 @@
-import Subscription from "./Subscription";
+import { Subscription } from "./Subscription";
 
-class Gaze {
+class GazeJs {
     
     private connected: boolean = false;
     private SSE: null | EventSource = null;
@@ -12,7 +12,7 @@ class Gaze {
         private tokenUrl: string,
     ){ }
 
-    async connect() : Promise<Gaze> {
+    async connect() : Promise<GazeJs> {
 
         return new Promise(async (resolve) => {
 
@@ -51,6 +51,8 @@ class Gaze {
 
     private async update(subscription : Subscription, topicsCallback: () => string[]){
         let newTopics = await topicsCallback();
+        newTopics = [...new Set(newTopics)];
+
         let topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
         let topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
 
@@ -91,4 +93,4 @@ class Gaze {
     }
 }
 
-export default Gaze
+export { GazeJs }

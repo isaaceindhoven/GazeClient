@@ -4,37 +4,29 @@
 
 ```js
 
-// setup gaze
-let gaze = new Gaze({
-    'hubUrl' : 'https://localhost:8000',
-    'tokenUrl': '/token.php'
+let gaze = await new Gaze("<HUB_URL>" , "<TOKEN_URL>").connect();
+
+let products = [1,2,3];
+
+let sub = await gaze.on(() => products.map(id => `ProductCreated/${id}`), payload => {
+    console.log(payload);
 });
 
-// subscribe single selector
-gaze.on("ProductCreated", ["id = 1", "name = Shirt"], product => {
+products = [2,3,4];
+sub.update();
 
-});
+products = [10,11,12];
+sub.update();
 
-// subscribe single selector
-gaze.on("ProductCreated", [
-    {
-        'field': 'id',
-        'operator': '=',
-        'value': 1
-    }
-], product => {
+products = [22,33,33];
+sub.update();
 
-});
+```
 
-// subscribe many selectors
-gaze.on("ProductCreated", [
-    "id = 1",
-    {
-        'field': 'id',
-        'operator': '=',
-        'value': 1
-    }
-], product => {
+## Installation
 
-});
+```js
+// JavaScript Import
+import GazeJs from "GazeJs";
+const GazeJs = require("GazeJs");
 ```

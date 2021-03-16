@@ -1,4 +1,4 @@
-export default class Queue {
+class Queue {
     private queue: Function[] = [];
     private isBusy: boolean = false;
 
@@ -20,3 +20,5 @@ export default class Queue {
         this.process();
     }
 }
+
+export { Queue }
