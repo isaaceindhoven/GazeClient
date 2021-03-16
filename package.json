@@ -2,10 +2,9 @@
   "name": "@study/gazejs",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/GazeJs.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild src/GazeJs.ts --bundle --global-name=GazeJs --outfile=dist/GazeJs.js",
+    "build": "tsc",
     "watch": "esbuild src/GazeJs.ts --bundle  --outfile=dist/GazeJs.js --watch"
   },
   "repository": {
