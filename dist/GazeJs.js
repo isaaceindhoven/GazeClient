@@ -1,2 +1,243 @@
-var GazeJs;(()=>{"use strict";var t={d:(e,n)=>{for(var r in n)t.o(n,r)&&!t.o(e,r)&&Object.defineProperty(e,r,{enumerable:!0,get:n[r]})},o:(t,e)=>Object.prototype.hasOwnProperty.call(t,e)},e={};(()=>{t.d(e,{default:()=>u});var n=function(){function t(){this.queue=[],this.isBusy=!1}return t.prototype.add=function(t){this.queue.push(t),this.process()},t.prototype.process=function(){return t=this,e=void 0,r=function(){return function(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function s(o){return function(s){return function(o){if(n)throw new TypeError("Generator is already executing.");for(;u;)try{if(n=1,r&&(i=2&o[0]?r.return:o[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,o[1])).done)return i;switch(r=0,i&&(o=[2&o[0],i.value]),o[0]){case 0:case 1:i=o;break;case 4:return u.label++,{value:o[1],done:!1};case 5:u.label++,r=o[1],o=[0];continue;case 7:o=u.ops.pop(),u.trys.pop();continue;default:if(!((i=(i=u.trys).length>0&&i[i.length-1])||6!==o[0]&&2!==o[0])){u=0;continue}if(3===o[0]&&(!i||o[1]>i[0]&&o[1]<i[3])){u.label=o[1];break}if(6===o[0]&&u.label<i[1]){u.label=i[1],i=o;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(o);break}i[2]&&u.ops.pop(),u.trys.pop();continue}o=e.call(t,u)}catch(t){o=[6,t],r=0}finally{n=i=0}if(5&o[0])throw o[1];return{value:o[0]?o[1]:void 0,done:!0}}([o,s])}}}(this,(function(t){switch(t.label){case 0:return this.isBusy||0==this.queue.length?[2]:(this.isBusy=!0,[4,this.queue[0]()]);case 1:return t.sent(),this.queue.shift(),this.isBusy=!1,this.process(),[2]}}))},new((n=void 0)||(n=Promise))((function(i,o){function u(t){try{c(r.next(t))}catch(t){o(t)}}function s(t){try{c(r.throw(t))}catch(t){o(t)}}function c(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,s)}c((r=r.apply(t,e||[])).next())}));var t,e,n,r},t}(),r=function(t,e){this.callbackId=t,this.payloadCallback=e,this.topics=[],this.queue=new n},i=function(t,e,n,r){return new(n||(n=Promise))((function(i,o){function u(t){try{c(r.next(t))}catch(t){o(t)}}function s(t){try{c(r.throw(t))}catch(t){o(t)}}function c(t){var e;t.done?i(t.value):(e=t.value,e instanceof n?e:new n((function(t){t(e)}))).then(u,s)}c((r=r.apply(t,e||[])).next())}))},o=function(t,e){var n,r,i,o,u={label:0,sent:function(){if(1&i[0])throw i[1];return i[1]},trys:[],ops:[]};return o={next:s(0),throw:s(1),return:s(2)},"function"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function s(o){return function(s){return function(o){if(n)throw new TypeError("Generator is already executing.");for(;u;)try{if(n=1,r&&(i=2&o[0]?r.return:o[0]?r.throw||((i=r.return)&&i.call(r),0):r.next)&&!(i=i.call(r,o[1])).done)return i;switch(r=0,i&&(o=[2&o[0],i.value]),o[0]){case 0:case 1:i=o;break;case 4:return u.label++,{value:o[1],done:!1};case 5:u.label++,r=o[1],o=[0];continue;case 7:o=u.ops.pop(),u.trys.pop();continue;default:if(!((i=(i=u.trys).length>0&&i[i.length-1])||6!==o[0]&&2!==o[0])){u=0;continue}if(3===o[0]&&(!i||o[1]>i[0]&&o[1]<i[3])){u.label=o[1];break}if(6===o[0]&&u.label<i[1]){u.label=i[1],i=o;break}if(i&&u.label<i[2]){u.label=i[2],u.ops.push(o);break}i[2]&&u.ops.pop(),u.trys.pop();continue}o=e.call(t,u)}catch(t){o=[6,t],r=0}finally{n=i=0}if(5&o[0])throw o[1];return{value:o[0]?o[1]:void 0,done:!0}}([o,s])}}};const u=function(){function t(t,e){this.hubUrl=t,this.tokenUrl=e,this.connected=!1,this.SSE=null,this.token=null,this.subscriptions=[]}return t.prototype.connect=function(){return i(this,void 0,void 0,(function(){var t=this;return o(this,(function(e){return[2,new Promise((function(e){return i(t,void 0,void 0,(function(){var t,n,r=this;return o(this,(function(i){switch(i.label){case 0:return[4,fetch(this.tokenUrl)];case 1:return t=i.sent(),n=this,[4,t.json()];case 2:return n.token=i.sent().token,this.SSE=new EventSource(this.hubUrl+"/sse?token="+this.token),this.SSE.onmessage=function(t){var e,n=JSON.parse(t.data);null===(e=r.subscriptions.find((function(t){return t.callbackId==n.callbackId})))||void 0===e||e.payloadCallback(n.payload)},this.SSE.onopen=function(){r.connected=!0,e(r)},[2]}}))}))}))]}))}))},t.prototype.on=function(t,e){return i(this,void 0,void 0,(function(){var n,i=this;return o(this,(function(o){switch(o.label){case 0:if(!this.connected)throw new Error("Gaze is not connected to a hub");return n=new r(this.generateCallbackId(),e),this.subscriptions.push(n),[4,this.update(n,t)];case 1:return o.sent(),[2,{update:function(){return i.update(n,t)}}]}}))}))},t.prototype.update=function(t,e){return i(this,void 0,void 0,(function(){var n,r,u,s=this;return o(this,(function(c){switch(c.label){case 0:return[4,e()];case 1:return n=c.sent(),n=Array.from(new Set(n)),r=t.topics.filter((function(t){return!n.includes(t)})),u=n.filter((function(e){return!t.topics.includes(e)})),r.length+u.length==0||(t.queue.add((function(){return i(s,void 0,void 0,(function(){return o(this,(function(e){switch(e.label){case 0:return r.length>0?[4,this.subscribeRequest("DELETE",{topics:r})]:[3,2];case 1:e.sent(),e.label=2;case 2:return u.length>0?[4,this.subscribeRequest("POST",{callbackId:t.callbackId,topics:u})]:[3,4];case 3:e.sent(),e.label=4;case 4:return[2]}}))}))})),t.topics=n),[2]}}))}))},t.prototype.subscribeRequest=function(t,e){return fetch(this.hubUrl+"/subscription",{method:t,headers:{Authorization:"Bearer "+this.token,"Content-Type":"application/json"},body:JSON.stringify(e)})},t.prototype.generateCallbackId=function(){var t=Math.random().toString(36).substring(7);return null==this.subscriptions.find((function(e){return e.callbackId==t}))?t:this.generateCallbackId()},t}()})(),GazeJs=e.default})();
+var GazeJs;
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/Queue.ts":
+/*!**********************!*\
+  !*** ./src/Queue.ts ***!
+  \**********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Queue": () => (/* binding */ Queue)
+/* harmony export */ });
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+class Queue {
+    constructor() {
+        this.queue = [];
+        this.isBusy = false;
+    }
+    add(callback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.queue.push(callback);
+            yield this.process();
+        });
+    }
+    process() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.isBusy || this.queue.length == 0)
+                return;
+            this.isBusy = true;
+            yield this.queue[0]();
+            this.queue.shift();
+            this.isBusy = false;
+            yield this.process();
+        });
+    }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/Subscription.ts":
+/*!*****************************!*\
+  !*** ./src/Subscription.ts ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Subscription": () => (/* binding */ Subscription)
+/* harmony export */ });
+/* harmony import */ var _Queue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Queue */ "./src/Queue.ts");
+
+class Subscription {
+    constructor(callbackId, payloadCallback) {
+        this.callbackId = callbackId;
+        this.payloadCallback = payloadCallback;
+        this.topics = [];
+        this.queue = new _Queue__WEBPACK_IMPORTED_MODULE_0__.Queue();
+    }
+}
+
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+/*!***********************!*\
+  !*** ./src/GazeJs.ts ***!
+  \***********************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _Subscription__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Subscription */ "./src/Subscription.ts");
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+class GazeJs {
+    constructor(hubUrl, tokenUrl) {
+        this.hubUrl = hubUrl;
+        this.tokenUrl = tokenUrl;
+        this.connected = false;
+        this.SSE = null;
+        this.token = null;
+        this.subscriptions = [];
+    }
+    connect() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+                let req = yield fetch(this.tokenUrl);
+                this.token = (yield req.json()).token;
+                this.SSE = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
+                this.SSE.onmessage = m => {
+                    var _a;
+                    let data = JSON.parse(m.data);
+                    (_a = this.subscriptions.find(s => s.callbackId == data.callbackId)) === null || _a === void 0 ? void 0 : _a.payloadCallback(data.payload);
+                };
+                this.SSE.onopen = () => {
+                    this.connected = true;
+                    resolve(this);
+                };
+            }));
+        });
+    }
+    on(topicsCallback, payloadCallback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.connected)
+                throw new Error("Gaze is not connected to a hub");
+            let subscription = new _Subscription__WEBPACK_IMPORTED_MODULE_0__.Subscription(this.generateCallbackId(), payloadCallback);
+            this.subscriptions.push(subscription);
+            yield this.update(subscription, topicsCallback);
+            return {
+                update: () => this.update(subscription, topicsCallback)
+            };
+        });
+    }
+    update(subscription, topicsCallback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let newTopics = yield topicsCallback();
+            newTopics = Array.from(new Set(newTopics));
+            let topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
+            let topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
+            if (topicsToRemove.length + topicsToAdd.length == 0)
+                return;
+            yield subscription.queue.add(() => __awaiter(this, void 0, void 0, function* () {
+                if (topicsToRemove.length > 0) {
+                    yield this.subscribeRequest("DELETE", { topics: topicsToRemove });
+                }
+                if (topicsToAdd.length > 0) {
+                    yield this.subscribeRequest("POST", {
+                        callbackId: subscription.callbackId,
+                        topics: topicsToAdd
+                    });
+                }
+            }));
+            subscription.topics = newTopics;
+        });
+    }
+    subscribeRequest(method, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield fetch(`${this.hubUrl}/subscription`, {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+        });
+    }
+    generateCallbackId() {
+        let UUID = Math.random().toString(36).substring(7);
+        if (this.subscriptions.find(s => s.callbackId == UUID) == null) {
+            return UUID;
+        }
+        return this.generateCallbackId();
+    }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (GazeJs);
+
+})();
+
+GazeJs = __webpack_exports__.default;
+/******/ })()
+;
 //# sourceMappingURL=GazeJs.js.map

@@ -2,12 +2,12 @@ class Queue {
     private queue: Function[] = [];
     private isBusy: boolean = false;
 
-    public add(callback: Function){
+    public async add(callback: Function){
         this.queue.push(callback);
-        this.process();
+        await this.process();
     }
 
-    public async process(){
+    private async process(){
         if (this.isBusy || this.queue.length == 0) return;
 
         this.isBusy = true;
@@ -17,7 +17,7 @@ class Queue {
 
         this.isBusy = false;
 
-        this.process();
+        await this.process();
     }
 }
 
