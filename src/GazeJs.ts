@@ -42,7 +42,7 @@ class GazeJs {
 
         this.subscriptions.push(subscription);
 
-        this.update(subscription, topicsCallback);
+        await this.update(subscription, topicsCallback);
 
         return {
             update: () => this.update(subscription, topicsCallback)
