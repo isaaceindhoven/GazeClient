@@ -2,11 +2,10 @@ declare class GazeJs {
     private hubUrl;
     private tokenUrl;
     private connected;
-    private SSE;
     private token;
     private subscriptions;
     constructor(hubUrl: string, tokenUrl: string);
-    connect(): Promise<GazeJs>;
+    connect(): Promise<unknown>;
     on<T>(topicsCallback: () => string[], payloadCallback: (t: T) => void): Promise<{
         update: () => Promise<void>;
     }>;

@@ -3,7 +3,6 @@ import { Subscription } from "./Subscription";
 class GazeJs {
     
     private connected: boolean = false;
-    private SSE: null | EventSource = null;
     private token: null | string = null;
     private subscriptions: Subscription[] = [];
 
@@ -12,26 +11,28 @@ class GazeJs {
         private tokenUrl: string,
     ){ }
 
-    async connect() : Promise<GazeJs> {
+    connect() {
 
-        return new Promise(async (resolve) => {
+        return new Promise(async (res) => {
 
             let req = await fetch(this.tokenUrl);
             this.token = (await req.json()).token;
             
-            this.SSE = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
+            let SSE : EventSource = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
 
-            this.SSE.onmessage = m => {
+            SSE.onmessage = m => {
                 let data : any = JSON.parse(m.data);
                 this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
             }
 
-            this.SSE.onopen = () => {
+            SSE.onopen = () => {
                 this.connected = true;
-                resolve(this);
+                res(this);
             }
 
-        })
+        });
+
+        
     }
 
     async on<T>( topicsCallback: () => string[], payloadCallback: (t: T) => void ) {
