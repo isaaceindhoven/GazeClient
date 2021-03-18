@@ -59,7 +59,7 @@ class GazeJs {
 
         if (topicsToRemove.length + topicsToAdd.length == 0) return;
 
-        subscription.queue.add(async() => {
+        await subscription.queue.add(async() => {
             if (topicsToRemove.length > 0){
                 await this.subscribeRequest("DELETE", { topics: topicsToRemove });
             }
@@ -74,8 +74,8 @@ class GazeJs {
         subscription.topics = newTopics;
     }
 
-    private subscribeRequest(method: "POST" | "DELETE", data: any){
-        return fetch(`${this.hubUrl}/subscription`, {
+    private async subscribeRequest(method: "POST" | "DELETE", data: any){
+        await fetch(`${this.hubUrl}/subscription`, {
             method,
             headers: {
                 'Authorization': `Bearer ${this.token}`,
