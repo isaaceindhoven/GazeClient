@@ -5,6 +5,7 @@ class GazeJs {
     private connected: boolean = false;
     private token: null | string = null;
     private subscriptions: Subscription[] = [];
+    private connectionResetCallback: Function | null = null;
 
     constructor(
         private hubUrl: string, 
@@ -12,9 +13,7 @@ class GazeJs {
     ){ }
 
     connect() {
-
         return new Promise(async (res) => {
-
             let req = await fetch(this.tokenUrl);
             this.token = (await req.json()).token;
             
@@ -23,16 +22,30 @@ class GazeJs {
             SSE.onmessage = m => {
                 let data : any = JSON.parse(m.data);
                 this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
-            }
+            };
 
-            SSE.onopen = () => {
+            SSE.onopen = async () => {
                 this.connected = true;
+
+                if (this.subscriptions.length > 0) {
+                    for(let i = 0; i < this.subscriptions.length; i++) {
+                        let subscription = this.subscriptions[i];
+                        await this.subscribeRequest("POST", {
+                            callbackId: subscription.callbackId,
+                            topics: subscription.topics
+                        });
+                    }
+
+                    if (this.connectionResetCallback) await this.connectionResetCallback();
+                }
+
                 res(this);
-            }
-
+            };
         });
+    }
 
-        
+    onConnectionReset(callback: Function) {
+        this.connectionResetCallback = callback;
     }
 
     async on<T>( topicsCallback: () => string[], payloadCallback: (t: T) => void ) {
