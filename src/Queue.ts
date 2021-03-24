@@ -1,13 +1,15 @@
-class Queue {
-    private queue: Function[] = [];
-    private isBusy: boolean = false;
+type QueueEntry = () => void;
 
-    public async add(callback: Function){
+class Queue {
+    private queue: QueueEntry[] = [];
+    private isBusy = false;
+
+    public async add(callback: QueueEntry): Promise<void> {
         this.queue.push(callback);
         await this.process();
     }
 
-    private async process(){
+    private async process(): Promise<void> {
         if (this.isBusy || this.queue.length == 0) return;
 
         this.isBusy = true;
