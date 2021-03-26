@@ -20,7 +20,9 @@ class GazeJs {
             
             const SSE : EventSource = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
 
-            fetch(`${this.hubUrl}/ping?token=${this.token}`);
+            setTimeout(() => {
+                fetch(`${this.hubUrl}/ping?token=${this.token}`);
+            }, 500);
 
             SSE.onmessage = m => {
                 const data : EventData = JSON.parse(m.data);
