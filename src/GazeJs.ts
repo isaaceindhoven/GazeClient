@@ -19,6 +19,8 @@ class GazeJs {
             
             let SSE : EventSource = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
 
+            fetch(`${this.hubUrl}/ping?token=${this.token}`);
+
             SSE.onmessage = m => {
                 let data : any = JSON.parse(m.data);
                 this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
