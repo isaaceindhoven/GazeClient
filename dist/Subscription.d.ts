@@ -1,9 +1,10 @@
 import { Queue } from "./Queue";
+import { PayloadCallback } from "./Types";
 declare class Subscription {
     callbackId: string;
-    payloadCallback: Function;
+    payloadCallback: PayloadCallback<unknown>;
     topics: string[];
     queue: Queue;
-    constructor(callbackId: string, payloadCallback: Function);
+    constructor(callbackId: string, payloadCallback: PayloadCallback<unknown>);
 }
 export { Subscription };

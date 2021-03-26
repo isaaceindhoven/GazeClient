@@ -1,28 +1,29 @@
 import { Subscription } from "./Subscription";
+import { EventData, PayloadCallback, TopicsCallback, OnConnectionResetFunction, SubscribeRequestData } from './Types';
 
 class GazeJs {
     
-    private connected: boolean = false;
+    private connected = false;
     private token: null | string = null;
     private subscriptions: Subscription[] = [];
-    private connectionResetCallback: Function | null = null;
+    private connectionResetCallback: OnConnectionResetFunction | null = null;
 
     constructor(
         private hubUrl: string, 
         private tokenUrl: string,
     ){ }
 
-    connect() {
-        return new Promise(async (res) => {
-            let req = await fetch(this.tokenUrl);
+    connect(): Promise<GazeJs> {
+        return new Promise(async (res) => { // eslint-disable-line no-async-promise-executor
+            const req = await fetch(this.tokenUrl);
             this.token = (await req.json()).token;
             
-            let SSE : EventSource = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
+            const SSE : EventSource = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
 
             fetch(`${this.hubUrl}/ping?token=${this.token}`);
 
             SSE.onmessage = m => {
-                let data : any = JSON.parse(m.data);
+                const data : EventData = JSON.parse(m.data);
                 this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
             };
 
@@ -31,7 +32,7 @@ class GazeJs {
 
                 if (this.subscriptions.length > 0) {
                     for(let i = 0; i < this.subscriptions.length; i++) {
-                        let subscription = this.subscriptions[i];
+                        const subscription = this.subscriptions[i];
                         await this.subscribeRequest("POST", {
                             callbackId: subscription.callbackId,
                             topics: subscription.topics
@@ -46,16 +47,14 @@ class GazeJs {
         });
     }
 
-    onConnectionReset(callback: Function) {
+    onConnectionReset(callback: OnConnectionResetFunction): void {
         this.connectionResetCallback = callback;
     }
 
-    async on<T>( topicsCallback: () => string[], payloadCallback: (t: T) => void ) {
-        
+    async on<T>(topicsCallback: TopicsCallback, payloadCallback: PayloadCallback<T>): Promise<{update : () => void}> {
         if (!this.connected) throw new Error("Gaze is not connected to a hub");
 
-        let subscription = new Subscription(this.generateCallbackId(), payloadCallback);
-
+        const subscription = new Subscription(this.generateCallbackId(), payloadCallback);
         this.subscriptions.push(subscription);
 
         await this.update(subscription, topicsCallback);
@@ -65,12 +64,12 @@ class GazeJs {
         }
     }
 
-    private async update(subscription : Subscription, topicsCallback: () => string[]){
+    private async update(subscription : Subscription, topicsCallback: () => string[]) {
         let newTopics = await topicsCallback();
         newTopics = Array.from(new Set(newTopics));
 
-        let topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
-        let topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
+        const topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
+        const topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
 
         if (topicsToRemove.length + topicsToAdd.length == 0) return;
 
@@ -89,7 +88,7 @@ class GazeJs {
         subscription.topics = newTopics;
     }
 
-    private async subscribeRequest(method: "POST" | "DELETE", data: any){
+    private async subscribeRequest(method: "POST" | "DELETE", data: SubscribeRequestData) {
         await fetch(`${this.hubUrl}/subscription`, {
             method,
             headers: {
@@ -100,8 +99,8 @@ class GazeJs {
         });
     }
 
-    private generateCallbackId() : string{
-        let UUID = Math.random().toString(36).substring(7);
+    private generateCallbackId() : string {
+        const UUID = Math.random().toString(36).substring(7);
         if (this.subscriptions.find(s => s.callbackId == UUID) == null){
             return UUID;
         }
