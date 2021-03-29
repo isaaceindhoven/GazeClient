@@ -70,6 +70,16 @@ class GazeJs {
         let newTopics = await topicsCallback();
         newTopics = Array.from(new Set(newTopics));
 
+        newTopics = newTopics.filter(t => !!t); // filter empty values
+        
+        newTopics = newTopics.map(t => {
+            if ((typeof t) !== "string"){
+                console.warn(`Topic ${t} was not a string`);
+                t = t.toString();
+            }
+            return t;
+        });
+
         const topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
         const topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
 
