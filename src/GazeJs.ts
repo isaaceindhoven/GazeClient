@@ -17,6 +17,7 @@ class GazeJs {
         return new Promise(async (res) => { // eslint-disable-line no-async-promise-executor
             const req = await fetch(this.tokenUrl);
             this.token = (await req.json()).token;
+            this.token = encodeURIComponent(this.token);
             
             const SSE : EventSource = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
 
