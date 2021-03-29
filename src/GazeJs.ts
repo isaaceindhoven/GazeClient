@@ -70,7 +70,7 @@ class GazeJs {
         }
     }
 
-    private async update(subscription : Subscription, topicsCallback: () => string[]) {
+    private async update(subscription : Subscription, topicsCallback: TopicsCallback) {
         let newTopics = await topicsCallback();
         if (!Array.isArray(newTopics)){
             return console.error("Topic callback must return array");
@@ -82,7 +82,7 @@ class GazeJs {
         newTopics = newTopics.map(t => {
             if (typeof t !== "string"){
                 console.warn(`Topic ${t} was not a string`);
-                t = t.toString();
+                t = (t as string).toString();
             }
             return t;
         });

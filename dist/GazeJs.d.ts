@@ -11,7 +11,7 @@ declare class GazeJs {
     onConnectionReset(callback: OnConnectionResetFunction): void;
     on<T>(topicsCallback: TopicsCallback, payloadCallback: PayloadCallback<T>): Promise<{
         update: () => void;
-    }>;
+    } | void>;
     private update;
     private subscribeRequest;
     private generateCallbackId;
