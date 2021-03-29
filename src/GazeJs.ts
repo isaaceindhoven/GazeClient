@@ -53,8 +53,12 @@ class GazeJs {
         this.connectionResetCallback = callback;
     }
 
-    async on<T>(topicsCallback: TopicsCallback, payloadCallback: PayloadCallback<T>): Promise<{update : () => void}> {
+    async on<T>(topicsCallback: TopicsCallback, payloadCallback: PayloadCallback<T>): Promise<{update : () => void} | void> {
         if (!this.connected) throw new Error("Gaze is not connected to a hub");
+
+        if (typeof topicsCallback !== 'function'){
+            return console.error("Topic callback must be a function"); 
+        }
 
         const subscription = new Subscription(this.generateCallbackId(), payloadCallback);
         this.subscriptions.push(subscription);
@@ -76,7 +80,7 @@ class GazeJs {
         newTopics = newTopics.filter(t => !!t); // filter empty values
         
         newTopics = newTopics.map(t => {
-            if ((typeof t) !== "string"){
+            if (typeof t !== "string"){
                 console.warn(`Topic ${t} was not a string`);
                 t = t.toString();
             }
