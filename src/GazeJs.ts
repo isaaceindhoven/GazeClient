@@ -68,6 +68,9 @@ class GazeJs {
 
     private async update(subscription : Subscription, topicsCallback: () => string[]) {
         let newTopics = await topicsCallback();
+        if (!Array.isArray(newTopics)){
+            return console.error("Topic callback must return array");
+        }
         newTopics = Array.from(new Set(newTopics));
 
         newTopics = newTopics.filter(t => !!t); // filter empty values
