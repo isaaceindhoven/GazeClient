@@ -1,8 +1,23 @@
 # GazeJS
 
-## Example
+## Installation
+
+```
+npm install git+ssh://git@gitlab.isaac.local/study/php-chapter/real-time-ui-updates/gazejs.git#master
+```
+
+## Building
+
+```bash
+npm install
+npm run build # to build
+npm run watch # to watch
+```
+
+## Example Usecase
 
 ```js
+const GazeJs = require("GazeJs");
 
 let gaze = await new Gaze("<HUB_URL>" , "<TOKEN_URL>").connect();
 
@@ -12,21 +27,9 @@ let sub = await gaze.on(() => products.map(id => `ProductCreated/${id}`), payloa
     console.log(payload);
 });
 
-products = [2,3,4];
-sub.update();
+setTimeout(() => {
+    products = [2,3,4];
+    sub.update();
+})
 
-products = [10,11,12];
-sub.update();
-
-products = [22,33,33];
-sub.update();
-
-```
-
-## Installation
-
-```js
-// JavaScript Import
-import GazeJs from "GazeJs";
-const GazeJs = require("GazeJs");
 ```
