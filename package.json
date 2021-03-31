@@ -1,7 +1,7 @@
 {
   "name": "@study/gazejs",
   "version": "1.0.0",
-  "description": "",
+  "description": "GazeJs Frontend Library",
   "main": "dist/GazeJs.js",
   "scripts": {
     "build": "webpack",
@@ -13,7 +13,8 @@
     "url": "git@gitlab.isaac.local/study/php-chapter/real-time-ui-updates/gazejs.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "proprietary",
+  "private": true,
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
