@@ -26,8 +26,12 @@ class GazeJs {
             }, 500);
 
             SSE.onmessage = m => {
-                const data : EventData = JSON.parse(m.data);
-                this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
+                try{
+                    const data : EventData = JSON.parse(m.data);
+                    this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
+                }catch(error){
+                    console.error(error);
+                }
             };
 
             SSE.onopen = async () => {
