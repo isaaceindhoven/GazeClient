@@ -1,34 +1,30 @@
-import { Subscription } from "./Subscription";
-import { EventData, PayloadCallback, TopicsCallback, OnConnectionResetFunction, SubscribeRequestData } from './Types';
+import { Subscriptions, Subscription } from "./Subscription";
+import { GazeRequestor } from "./GazeRequestor";
+import { EventData, PayloadCallback, TopicsCallback, OnConnectionResetFunction } from './Types';
 
 class GazeJs {
     
     private connected = false;
-    private token: null | string = null;
-    private subscriptions: Subscription[] = [];
+    private subscriptions: Subscriptions = new Subscriptions();
     private connectionResetCallback: OnConnectionResetFunction | null = null;
+    private gazeRequestor: GazeRequestor = null;
 
-    constructor(
-        private hubUrl: string, 
-        private tokenUrl: string,
-    ){ }
+    constructor(hubUrl: string, tokenUrl: string ){
+        this.gazeRequestor = new GazeRequestor(hubUrl, tokenUrl);
+    }
 
     connect(): Promise<GazeJs> {
         return new Promise(async (res) => { // eslint-disable-line no-async-promise-executor
-            const req = await fetch(this.tokenUrl);
-            this.token = (await req.json()).token;
-            this.token = encodeURIComponent(this.token);
+            await this.gazeRequestor.getToken();
             
-            const SSE : EventSource = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
+            const SSE : EventSource = this.gazeRequestor.connect();
 
-            setTimeout(() => {
-                fetch(`${this.hubUrl}/ping?token=${this.token}`);
-            }, 500);
+            setTimeout(() => this.gazeRequestor.ping(), 500);
 
             SSE.onmessage = m => {
                 try{
                     const data : EventData = JSON.parse(m.data);
-                    this.subscriptions.find(s => s.callbackId == data.callbackId)?.payloadCallback(data.payload);
+                    this.subscriptions.getById(data.callbackId)?.payloadCallback(data.payload);
                 }catch(error){
                     console.error(error);
                 }
@@ -36,48 +32,23 @@ class GazeJs {
 
             SSE.onopen = async () => {
                 this.connected = true;
-
-                if (this.subscriptions.length > 0) {
-                    for(let i = 0; i < this.subscriptions.length; i++) {
-                        const subscription = this.subscriptions[i];
-                        await this.subscribeRequest("POST", {
-                            callbackId: subscription.callbackId,
-                            topics: subscription.topics
-                        });
-                    }
-
-                    if (this.connectionResetCallback) await this.connectionResetCallback();
-                }
-
+                await this.reconnect();
                 res(this);
             };
         });
     }
 
-    onConnectionReset(callback: OnConnectionResetFunction): void {
-        this.connectionResetCallback = callback;
-    }
-
     async on<T>(topics: TopicsCallback | string | string[], payloadCallback: PayloadCallback<T>): Promise<{update : () => void} | void> {
         
-        let topicsCallback: TopicsCallback;
-
-        if (Array.isArray(topics)){
-            topicsCallback = () => topics;
-        }else if (typeof topics === "string"){
-            topicsCallback = () => [topics];
-        }else{
-            topicsCallback = topics;
-        }
-
         if (!this.connected) throw new Error("Gaze is not connected to a hub");
+        
+        const topicsCallback = this.parseTopics(topics);
 
         if (typeof topicsCallback !== 'function'){
             return console.error("Topic callback must be a function"); 
         }
 
-        const subscription = new Subscription(this.generateCallbackId(), payloadCallback);
-        this.subscriptions.push(subscription);
+        const subscription = this.subscriptions.create(payloadCallback);
 
         await this.update(subscription, topicsCallback);
 
@@ -87,10 +58,59 @@ class GazeJs {
     }
 
     private async update(subscription : Subscription, topicsCallback: TopicsCallback) {
-        let newTopics = await topicsCallback();
-        if (!Array.isArray(newTopics)){
-            return console.error("Topic callback must return array");
+
+        try{
+            const newTopics = await this.evaluateTopicsCallback(topicsCallback);
+
+            const topicsToRemove = subscription.topicsToRemove(newTopics);
+            const topicsToAdd = subscription.topicsToAdd(newTopics);
+
+            if (topicsToRemove.length + topicsToAdd.length == 0) return;
+
+            await subscription.queue.add(async() => {
+                await this.gazeRequestor.unsubscibe({ topics: topicsToRemove });
+
+                await this.gazeRequestor.subscibe({ 
+                    callbackId: subscription.callbackId, 
+                    topics: topicsToAdd 
+                });
+            });
+
+            subscription.topics = newTopics;
+    
+        }catch(error){
+            return console.error(error);
         }
+        
+    }
+
+    private async reconnect(){
+        if (this.subscriptions.getAll().length > 0) {
+            for(const subscription of this.subscriptions.getAll()){
+                await this.gazeRequestor.subscibe({
+                    callbackId: subscription.callbackId,
+                    topics: subscription.topics
+                });
+            }
+
+            if (this.connectionResetCallback) await this.connectionResetCallback();
+        }
+    }
+
+    private parseTopics(topics: TopicsCallback | string | string[]): TopicsCallback{
+        if (Array.isArray(topics)) return () => topics;
+        if (typeof topics === "string") return () => [topics];
+
+        return topics;
+    }
+
+    private async evaluateTopicsCallback(topicsCallback: TopicsCallback): Promise<string[]>{
+        let newTopics = await topicsCallback();
+
+        if (!Array.isArray(newTopics)){
+            throw "Topic callback must return array";
+        }
+
         newTopics = Array.from(new Set(newTopics));
 
         newTopics = newTopics.filter(t => !!t); // filter empty values
@@ -103,43 +123,11 @@ class GazeJs {
             return t;
         });
 
-        const topicsToRemove = subscription.topics.filter(t => !newTopics.includes(t));
-        const topicsToAdd = newTopics.filter(t => !subscription.topics.includes(t));
-
-        if (topicsToRemove.length + topicsToAdd.length == 0) return;
-
-        await subscription.queue.add(async() => {
-            if (topicsToRemove.length > 0){
-                await this.subscribeRequest("DELETE", { topics: topicsToRemove });
-            }
-            if (topicsToAdd.length > 0){
-                await this.subscribeRequest("POST", { 
-                    callbackId: subscription.callbackId, 
-                    topics: topicsToAdd 
-                });
-            }
-        });
-
-        subscription.topics = newTopics;
+        return newTopics;
     }
 
-    private async subscribeRequest(method: "POST" | "DELETE", data: SubscribeRequestData) {
-        await fetch(`${this.hubUrl}/subscription`, {
-            method,
-            headers: {
-                'Authorization': `Bearer ${this.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-    }
-
-    private generateCallbackId() : string {
-        const UUID = Math.random().toString(36).substring(7);
-        if (this.subscriptions.find(s => s.callbackId == UUID) == null){
-            return UUID;
-        }
-        return this.generateCallbackId();
+    onConnectionReset(callback: OnConnectionResetFunction): void {
+        this.connectionResetCallback = callback;
     }
 }
 

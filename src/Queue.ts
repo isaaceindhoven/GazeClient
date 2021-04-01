@@ -1,7 +1,7 @@
 type QueueEntry = () => void;
 
 class Queue {
-    private queue: QueueEntry[] = [];
+    public queue: QueueEntry[] = [];
     private isBusy = false;
 
     public async add(callback: QueueEntry): Promise<void> {
