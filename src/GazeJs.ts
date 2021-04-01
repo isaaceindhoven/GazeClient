@@ -58,7 +58,18 @@ class GazeJs {
         this.connectionResetCallback = callback;
     }
 
-    async on<T>(topicsCallback: TopicsCallback, payloadCallback: PayloadCallback<T>): Promise<{update : () => void} | void> {
+    async on<T>(topics: TopicsCallback | string | string[], payloadCallback: PayloadCallback<T>): Promise<{update : () => void} | void> {
+        
+        let topicsCallback: TopicsCallback;
+
+        if (Array.isArray(topics)){
+            topicsCallback = () => topics;
+        }else if (typeof topics === "string"){
+            topicsCallback = () => [topics];
+        }else{
+            topicsCallback = topics;
+        }
+
         if (!this.connected) throw new Error("Gaze is not connected to a hub");
 
         if (typeof topicsCallback !== 'function'){
