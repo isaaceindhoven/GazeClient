@@ -6,5 +6,14 @@ declare class Subscription {
     topics: string[];
     queue: Queue;
     constructor(callbackId: string, payloadCallback: PayloadCallback<unknown>);
+    topicsToRemove(newTopics: string[]): string[];
+    topicsToAdd(newTopics: string[]): string[];
 }
-export { Subscription };
+declare class Subscriptions {
+    private subscriptions;
+    getById(callbackId: string): Subscription;
+    create<T>(payloadCallback: PayloadCallback<T>): Subscription;
+    private generateCallbackId;
+    getAll(): Subscription[];
+}
+export { Subscription, Subscriptions };

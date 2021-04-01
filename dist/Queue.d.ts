@@ -1,6 +1,6 @@
 declare type QueueEntry = () => void;
 declare class Queue {
-    private queue;
+    queue: QueueEntry[];
     private isBusy;
     add(callback: QueueEntry): Promise<void>;
     private process;

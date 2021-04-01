@@ -1,19 +1,18 @@
 import { PayloadCallback, TopicsCallback, OnConnectionResetFunction } from './Types';
 declare class GazeJs {
-    private hubUrl;
-    private tokenUrl;
     private connected;
-    private token;
     private subscriptions;
     private connectionResetCallback;
+    private gazeRequestor;
     constructor(hubUrl: string, tokenUrl: string);
     connect(): Promise<GazeJs>;
-    onConnectionReset(callback: OnConnectionResetFunction): void;
     on<T>(topics: TopicsCallback | string | string[], payloadCallback: PayloadCallback<T>): Promise<{
         update: () => void;
     } | void>;
     private update;
-    private subscribeRequest;
-    private generateCallbackId;
+    private reconnect;
+    private parseTopics;
+    private evaluateTopicsCallback;
+    onConnectionReset(callback: OnConnectionResetFunction): void;
 }
 export default GazeJs;
