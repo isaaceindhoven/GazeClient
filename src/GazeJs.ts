@@ -7,14 +7,15 @@ class GazeJs {
     private connected = false;
     private subscriptions: Subscriptions = new Subscriptions();
     private connectionResetCallback: OnConnectionResetFunction | null = null;
-    private gazeRequestor: GazeRequestor = null;
+    public gazeRequestor: GazeRequestor = null;
 
     constructor(hubUrl: string, tokenUrl: string ){
         this.gazeRequestor = new GazeRequestor(hubUrl, tokenUrl);
     }
 
     connect(): Promise<GazeJs> {
-        return new Promise(async (res) => { // eslint-disable-line no-async-promise-executor
+        return new Promise(async res => { // eslint-disable-line no-async-promise-executor
+            
             await this.gazeRequestor.getToken();
             
             const SSE : EventSource = this.gazeRequestor.connect();
@@ -108,7 +109,7 @@ class GazeJs {
         let newTopics = await topicsCallback();
 
         if (!Array.isArray(newTopics)){
-            throw "Topic callback must return array";
+            throw new Error("Topic callback must return array");
         }
 
         newTopics = Array.from(new Set(newTopics));
