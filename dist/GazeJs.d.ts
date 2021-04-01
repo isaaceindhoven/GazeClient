@@ -9,7 +9,7 @@ declare class GazeJs {
     constructor(hubUrl: string, tokenUrl: string);
     connect(): Promise<GazeJs>;
     onConnectionReset(callback: OnConnectionResetFunction): void;
-    on<T>(topicsCallback: TopicsCallback, payloadCallback: PayloadCallback<T>): Promise<{
+    on<T>(topics: TopicsCallback | string | string[], payloadCallback: PayloadCallback<T>): Promise<{
         update: () => void;
     } | void>;
     private update;
