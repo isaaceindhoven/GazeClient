@@ -1,66 +1,143 @@
-import GazeJs from "./../src/GazeJs";
-import { GazeRequestorStub } from "./GazeRequestorStub";
+import GazeJs from "./../src/GazeJs"
+import { GazeRequestorStub } from "./utils/GazeRequestorStub"
 
-test("if connect resolves when onopen is called", done => {
+test("if topics can be parsed from string", done => {
     const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
-    const gazeRequestorStub = new GazeRequestorStub();
+    const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()
     }
     gaze.gazeRequestor = gazeRequestorStub as any
-    gaze.connect().then(() => done())
-});
-
-test("if ping method is called on connect", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL");
-    const gazeRequestorStub = new GazeRequestorStub();
-    gaze.gazeRequestor = gazeRequestorStub as any;
-    setTimeout(() => { gazeRequestorStub.sseStub.onopen() }, 550);
     gaze.connect().then(() => {
-        expect(gazeRequestorStub.methodCalls.includes("ping")).toBe(true);
-        done();
-    });
-});
-
-test("if throws when not connected", () => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL");
-    const gazeRequestorStub = new GazeRequestorStub();
-    gaze.gazeRequestor = gazeRequestorStub as any;
-    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
-        gazeRequestorStub.sseStub.onopen()
-    }
-    expect(gaze.on("cool", () => {})).rejects.toThrow("Gaze is not connected to a hub");
-});
-
-test("if topics are parsed correclty", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL");
-    const gazeRequestorStub = new GazeRequestorStub();
-    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
-        gazeRequestorStub.sseStub.onopen()
-    }
-    gaze.gazeRequestor = gazeRequestorStub as any;
-    gaze.connect().then(() => {
-        gaze.on("cool", () => done()).then(() => {
+        gaze.on("cool", payload => {
+            expect(payload).toEqual({"name" : "kevin"})
+            done()
+        }).then(() => {
             gazeRequestorStub.sseStub.onmessage({
                 data: JSON.stringify({
                     "callbackId" : gazeRequestorStub.subscriptionsRequests[0].callbackId,
                     "payload":{"name" : "kevin"},
                 })
-            });
-        });
-    });
-});
+            })
+        })
+    })
+})
 
-/**
- * Test if topics are parsed correclty
- * Test if topicsCallback is a function
- * Test if subscription is created and added to subscrions
- * Test if on returns object with a "update" function
- * Test if topics to remove is good
- * Test if topics to add is good
- * Test if noting happens when both of topicsToRemove+topicsToAdd are empty
- * Test if unsubscribe is called with the right topics
- * Test if subscribe is called with the right topics
- * Test if subscription topics are set to the new topics
- * Test if reconnect loops through all the subscriotions and fires a subscriotion function
- */
+test("if topics can be parsed from array", done => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
+        gazeRequestorStub.sseStub.onopen()
+    }
+    gaze.gazeRequestor = gazeRequestorStub as any
+    gaze.connect().then(() => {
+        gaze.on(["cool"], payload => {
+            expect(payload).toEqual({"name" : "kevin"})
+            done()
+        }).then(() => {
+            gazeRequestorStub.sseStub.onmessage({
+                data: JSON.stringify({
+                    "callbackId" : gazeRequestorStub.subscriptionsRequests[0].callbackId,
+                    "payload":{"name" : "kevin"},
+                })
+            })
+        })
+    })
+})
+
+test("if topics can be parsed from string callback", done => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
+        gazeRequestorStub.sseStub.onopen()
+    }
+    gaze.gazeRequestor = gazeRequestorStub as any
+    gaze.connect().then(() => {
+        gaze.on(() => ["cool"], payload => {
+            expect(payload).toEqual({"name" : "kevin"})
+            done()
+        }).then(() => {
+            gazeRequestorStub.sseStub.onmessage({
+                data: JSON.stringify({
+                    "callbackId" : gazeRequestorStub.subscriptionsRequests[0].callbackId,
+                    "payload":{"name" : "kevin"},
+                })
+            })
+        })
+    })
+})
+
+test("if topics throws if object topics given", done => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
+        gazeRequestorStub.sseStub.onopen()
+    }
+    gaze.gazeRequestor = gazeRequestorStub as any
+    gaze.connect().then(() => {
+        expect(gaze.on({} as any, () => {})).rejects.toThrow("Topic callback must be a function")
+        done()
+    })
+})
+
+test("if no subscription change is made if topics are the same", done => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
+        gazeRequestorStub.sseStub.onopen()
+    }
+    gaze.gazeRequestor = gazeRequestorStub as any
+    gaze.connect().then(async () => {
+        let topics = ["A", "B", "C"]
+        const sub = await gaze.on(() => topics, () => {})
+        await sub.update()
+        expect(gazeRequestorStub.subscriptionsRequests.length).toBe(1)
+        done()
+    })
+})
+
+test("if connect resolves when onopen is called", done => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
+        gazeRequestorStub.sseStub.onopen()
+    }
+    gaze.gazeRequestor = gazeRequestorStub as any
+    gaze.connect().then(() => done())
+})
+
+test("if ping method is called on connect", done => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gaze.gazeRequestor = gazeRequestorStub as any
+    setTimeout(() => { gazeRequestorStub.sseStub.onopen() }, 550)
+    gaze.connect().then(() => {
+        expect(gazeRequestorStub.methodCalls.includes("ping")).toBe(true)
+        done()
+    })
+})
+
+test("if throws when not connected", () => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gaze.gazeRequestor = gazeRequestorStub as any
+    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
+        gazeRequestorStub.sseStub.onopen()
+    }
+    expect(gaze.on("cool", () => {})).rejects.toThrow("Gaze is not connected to a hub")
+})
+
+test("if topics can be parsed from string", done => {
+    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gazeRequestorStub = new GazeRequestorStub()
+    gazeRequestorStub.sseStub.onOpenSetCallback = () => {
+        gazeRequestorStub.sseStub.onopen()
+    }
+    gaze.gazeRequestor = gazeRequestorStub as any
+    gaze.connect().then(() => {
+        expect(gaze.on("cool", "notvalid" as any)).rejects.toThrow("Callback must be a function")
+        expect(gaze.on("cool", {} as any)).rejects.toThrow("Callback must be a function")
+        expect(gaze.on("cool", ["notvalid"] as any)).rejects.toThrow("Callback must be a function")
+        done()
+    })
+})

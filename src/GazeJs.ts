@@ -1,6 +1,7 @@
 import { Subscriptions, Subscription } from "./Subscription";
 import { GazeRequestor } from "./GazeRequestor";
-import { EventData, PayloadCallback, TopicsCallback, OnConnectionResetFunction } from './Types';
+import { EventData, PayloadCallback, OnConnectionResetFunction } from './Types';
+import { TopicsResolver } from "./TopicsResolver";
 
 class GazeJs {
     
@@ -39,29 +40,25 @@ class GazeJs {
         });
     }
 
-    async on<T>(topics: TopicsCallback | string | string[], payloadCallback: PayloadCallback<T>): Promise<{update : () => void} | void> {
+    async on<T>(topics: string | string[] | (() => string[]), payloadCallback: PayloadCallback<T>): Promise<{update : () => void}> {
         
         if (!this.connected) throw new Error("Gaze is not connected to a hub");
         
-        const topicsCallback = this.parseTopics(topics);
-
-        if (typeof topicsCallback !== 'function'){
-            return console.error("Topic callback must be a function"); 
-        }
+        const topicsResolver = TopicsResolver.parse(topics);
 
         const subscription = this.subscriptions.create(payloadCallback);
 
-        await this.update(subscription, topicsCallback);
+        await this.update(subscription, topicsResolver);
 
         return {
-            update: () => this.update(subscription, topicsCallback)
+            update: () => this.update(subscription, topicsResolver)
         }
     }
 
-    private async update(subscription : Subscription, topicsCallback: TopicsCallback) {
+    private async update(subscription : Subscription, topicsResolver: TopicsResolver) {
 
         try{
-            const newTopics = await this.evaluateTopicsCallback(topicsCallback);
+            const newTopics = await topicsResolver.evaluate();
 
             const topicsToRemove = subscription.topicsToRemove(newTopics);
             const topicsToAdd = subscription.topicsToAdd(newTopics);
@@ -96,35 +93,6 @@ class GazeJs {
 
             if (this.connectionResetCallback) await this.connectionResetCallback();
         }
-    }
-
-    private parseTopics(topics: TopicsCallback | string | string[]): TopicsCallback{
-        if (Array.isArray(topics)) return () => topics;
-        if (typeof topics === "string") return () => [topics];
-
-        return topics;
-    }
-
-    private async evaluateTopicsCallback(topicsCallback: TopicsCallback): Promise<string[]>{
-        let newTopics = await topicsCallback();
-
-        if (!Array.isArray(newTopics)){
-            throw new Error("Topic callback must return array");
-        }
-
-        newTopics = Array.from(new Set(newTopics));
-
-        newTopics = newTopics.filter(t => !!t); // filter empty values
-        
-        newTopics = newTopics.map(t => {
-            if (typeof t !== "string"){
-                console.warn(`Topic ${t} was not a string`);
-                t = (t as string).toString();
-            }
-            return t;
-        });
-
-        return newTopics;
     }
 
     onConnectionReset(callback: OnConnectionResetFunction): void {

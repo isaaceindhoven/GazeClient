@@ -1,4 +1,4 @@
-import { SubscribeRequestData } from '../src/Types';
+import { SubscribeRequestData } from '../../src/Types';
 
 class GazeRequestorStub {
 

@@ -27,6 +27,9 @@ class Subscriptions {
     }
 
     public create<T>(payloadCallback: PayloadCallback<T>): Subscription{
+        if (typeof payloadCallback !== "function"){
+            throw new Error("Callback must be a function");
+        }
         const subscription = new Subscription(this.generateCallbackId(), payloadCallback);
         this.subscriptions.push(subscription);
         return subscription;

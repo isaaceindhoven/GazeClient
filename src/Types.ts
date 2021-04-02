@@ -9,13 +9,11 @@ type SubscribeRequestData = {
 };
 
 type OnConnectionResetFunction = () => void;
-type TopicsCallback = () => string[];
 type PayloadCallback<T> = (t: T) => void;
 
 export {
     EventData,
     SubscribeRequestData,
     OnConnectionResetFunction,
-    TopicsCallback,
     PayloadCallback
 }
