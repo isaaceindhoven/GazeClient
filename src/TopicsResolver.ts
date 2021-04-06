@@ -28,10 +28,10 @@ class TopicsResolver {
             throw new Error("Topic callback must return array");
         }
 
-        newTopics = Array.from(new Set(newTopics));
+        newTopics = newTopics.filter((x, i, a) => a.indexOf(x) == i)
 
         newTopics = newTopics.filter(t => !!t); // filter empty values
-        
+
         newTopics = newTopics.map(t => {
             if (typeof t !== "string"){
                 console.warn(`Topic ${t} was not a string`);
