@@ -1,9 +1,9 @@
-# GazeJS
+# GazeClient
 
 ## Installation
 
 ```
-npm install git+ssh://git@gitlab.isaac.local/study/php-chapter/real-time-ui-updates/gazejs.git#master
+npm install git+ssh://git@gitlab.isaac.local/study/php-chapter/real-time-ui-updates/gazeclient.git#master
 ```
 
 ## Building
@@ -17,9 +17,9 @@ npm run watch # to watch
 ## Example Usecase
 
 ```js
-const GazeJs = require("GazeJs");
+const GazeClient = require("GazeClient");
 
-let gaze = await new Gaze("<HUB_URL>" , "<TOKEN_URL>").connect();
+let gaze = await new GazeClient("<HUB_URL>" , "<TOKEN_URL>").connect();
 
 let products = [1,2,3];
 

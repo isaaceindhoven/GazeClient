@@ -4,13 +4,13 @@ module.exports = {
     mode: 'production',
     devtool: 'source-map',
     entry: {
-        GazeJs: "./src/GazeJs.ts",
+        GazeClient: "./src/GazeClient.ts",
     },
     output: {
         path: path.resolve(__dirname, './dist'),
         filename: "[name].js",
         library: {
-            name: 'GazeJs',
+            name: 'GazeClient',
             type: 'var',
             export: 'default'
         }

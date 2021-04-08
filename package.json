@@ -1,8 +1,8 @@
 {
-  "name": "@study/gazejs",
+  "name": "@study/gazeclient",
   "version": "1.0.0",
-  "description": "GazeJs Frontend Library",
-  "main": "dist/GazeJs.js",
+  "description": "Gaze Frontend Library",
+  "main": "dist/GazeClient.js",
   "scripts": {
     "test": "jest",
     "build": "webpack",
@@ -11,9 +11,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.isaac.local/study/php-chapter/real-time-ui-updates/gazejs.git"
+    "url": "git@gitlab.isaac.local/study/php-chapter/real-time-ui-updates/gazeclient.git"
   },
-  "author": "",
+  "author": "ISAAC",
   "license": "proprietary",
   "private": true,
   "devDependencies": {

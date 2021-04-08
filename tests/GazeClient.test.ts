@@ -1,8 +1,8 @@
-import GazeJs from "./../src/GazeJs"
+import GazeClient from "../src/GazeClient"
 import { GazeRequestorStub } from "./utils/GazeRequestorStub"
 
 test("if topics can be parsed from string", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()
@@ -24,7 +24,7 @@ test("if topics can be parsed from string", done => {
 })
 
 test("if topics can be parsed from array", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()
@@ -46,7 +46,7 @@ test("if topics can be parsed from array", done => {
 })
 
 test("if topics can be parsed from string callback", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()
@@ -68,7 +68,7 @@ test("if topics can be parsed from string callback", done => {
 })
 
 test("if topics throws if object topics given", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()
@@ -81,7 +81,7 @@ test("if topics throws if object topics given", done => {
 })
 
 test("if no subscription change is made if topics are the same", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()
@@ -97,7 +97,7 @@ test("if no subscription change is made if topics are the same", done => {
 })
 
 test("if connect resolves when onopen is called", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()
@@ -107,7 +107,7 @@ test("if connect resolves when onopen is called", done => {
 })
 
 test("if ping method is called on connect", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gaze.gazeRequestor = gazeRequestorStub as any
     setTimeout(() => { gazeRequestorStub.sseStub.onopen() }, 550)
@@ -118,7 +118,7 @@ test("if ping method is called on connect", done => {
 })
 
 test("if throws when not connected", () => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gaze.gazeRequestor = gazeRequestorStub as any
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
@@ -128,7 +128,7 @@ test("if throws when not connected", () => {
 })
 
 test("if topics can be parsed from string", done => {
-    const gaze = new GazeJs("HUB_URL", "TOKEN_URL")
+    const gaze = new GazeClient("HUB_URL", "TOKEN_URL")
     const gazeRequestorStub = new GazeRequestorStub()
     gazeRequestorStub.sseStub.onOpenSetCallback = () => {
         gazeRequestorStub.sseStub.onopen()

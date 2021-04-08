@@ -1,12 +1,12 @@
 import { GazeRequestor } from "./GazeRequestor";
 import { PayloadCallback, OnConnectionResetFunction } from './Types';
-declare class GazeJs {
+declare class GazeClient {
     private connected;
     private subscriptions;
     private connectionResetCallback;
     gazeRequestor: GazeRequestor;
     constructor(hubUrl: string, tokenUrl: string);
-    connect(): Promise<GazeJs>;
+    connect(): Promise<GazeClient>;
     on<T>(topics: string | string[] | (() => string[]), payloadCallback: PayloadCallback<T>): Promise<{
         update: () => void;
     }>;
@@ -14,4 +14,4 @@ declare class GazeJs {
     private reconnect;
     onConnectionReset(callback: OnConnectionResetFunction): void;
 }
-export default GazeJs;
+export default GazeClient;

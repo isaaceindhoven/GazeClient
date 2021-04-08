@@ -3,7 +3,7 @@ import { GazeRequestor } from "./GazeRequestor";
 import { EventData, PayloadCallback, OnConnectionResetFunction } from './Types';
 import { TopicsResolver } from "./TopicsResolver";
 
-class GazeJs {
+class GazeClient {
     
     private connected = false;
     private subscriptions: Subscriptions = new Subscriptions();
@@ -14,7 +14,7 @@ class GazeJs {
         this.gazeRequestor = new GazeRequestor(hubUrl, tokenUrl);
     }
 
-    connect(): Promise<GazeJs> {
+    connect(): Promise<GazeClient> {
         return new Promise(async res => { // eslint-disable-line no-async-promise-executor
             
             await this.gazeRequestor.getToken();
@@ -100,4 +100,4 @@ class GazeJs {
     }
 }
 
-export default GazeJs;
+export default GazeClient;
