@@ -5,7 +5,7 @@ declare class GazeClient {
     private subscriptions;
     private connectionResetCallback;
     gazeRequestor: GazeRequestor;
-    constructor(hubUrl: string, tokenUrl: string);
+    constructor(hubUrl: string, tokenResolver: string | (() => string) | Promise<string>);
     connect(): Promise<GazeClient>;
     on<T>(topics: string | string[] | (() => string[]), payloadCallback: PayloadCallback<T>): Promise<{
         update: () => void;

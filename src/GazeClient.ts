@@ -10,8 +10,8 @@ class GazeClient {
     private connectionResetCallback: OnConnectionResetFunction | null = null;
     public gazeRequestor: GazeRequestor = null;
 
-    constructor(hubUrl: string, tokenUrl: string ){
-        this.gazeRequestor = new GazeRequestor(hubUrl, tokenUrl);
+    constructor(hubUrl: string, tokenResolver: string | (() => string) | Promise<string> ){
+        this.gazeRequestor = new GazeRequestor(hubUrl, tokenResolver);
     }
 
     connect(): Promise<GazeClient> {
