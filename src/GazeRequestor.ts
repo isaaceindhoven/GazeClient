@@ -1,17 +1,8 @@
 import { SubscribeRequestData } from './Types';
 
 class GazeRequestor {
-
-    private token: null | string = null;
-
-    constructor(private hubUrl: string, private tokenResolver: string | (() => string) | Promise<string>){
+    constructor(private hubUrl: string, private token: string){
         
-    }
-
-    public async getToken(): Promise<void> {
-        const tokenUrl = await this.resolveTokenUrl();
-        const req = await fetch(tokenUrl);
-        this.token = encodeURIComponent((await req.json()).token);
     }
 
     public async ping(): Promise<void>{
@@ -42,22 +33,6 @@ class GazeRequestor {
             },
             body: JSON.stringify(data)
         });
-    }
-
-    private async resolveTokenUrl(): Promise<string> {
-        if (typeof this.tokenResolver === "string"){
-            return this.tokenResolver;
-        }
-
-        if (typeof this.tokenResolver === "function"){
-            return await this.tokenResolver();
-        }
-
-        if (typeof this.tokenResolver === "object"){
-            return await Promise.resolve(this.tokenResolver);
-        }
-
-        throw new Error("TokenUrl must be a string or a valid resolver");
     }
 }
 

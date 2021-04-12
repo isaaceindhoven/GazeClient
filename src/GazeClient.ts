@@ -10,14 +10,12 @@ class GazeClient {
     private connectionResetCallback: OnConnectionResetFunction | null = null;
     public gazeRequestor: GazeRequestor = null;
 
-    constructor(hubUrl: string, tokenResolver: string | (() => string) | Promise<string> ){
-        this.gazeRequestor = new GazeRequestor(hubUrl, tokenResolver);
+    constructor(hubUrl: string, token: string) {
+        this.gazeRequestor = new GazeRequestor(hubUrl, token);
     }
 
     connect(): Promise<GazeClient> {
         return new Promise(async res => { // eslint-disable-line no-async-promise-executor
-            
-            await this.gazeRequestor.getToken();
             
             const SSE : EventSource = this.gazeRequestor.connect();
 
