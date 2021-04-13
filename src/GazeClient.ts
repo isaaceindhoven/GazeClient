@@ -2,12 +2,15 @@ import { Subscriptions, Subscription } from "./Subscription";
 import { GazeRequestor } from "./GazeRequestor";
 import { EventData, PayloadCallback, OnConnectionResetFunction } from './Types';
 import { TopicsResolver } from "./TopicsResolver";
+import { Middleware } from "./Middleware";
+import { LinkedList } from "./LinkedList";
 
 class GazeClient {
     
     private connected = false;
     private subscriptions: Subscriptions = new Subscriptions();
     private connectionResetCallback: OnConnectionResetFunction | null = null;
+    private middlewareList = new LinkedList<Middleware>();
     public gazeRequestor: GazeRequestor = null;
 
     constructor(hubUrl: string, token: string) {
@@ -21,9 +24,14 @@ class GazeClient {
 
             setTimeout(() => this.gazeRequestor.ping(), 500);
 
-            SSE.onmessage = m => {
+            SSE.onmessage = async message => {
                 try{
-                    const data : EventData = JSON.parse(m.data);
+                    const data : EventData = JSON.parse(message.data);
+
+                    if (this.middlewareList.first){
+                        data.payload = await this.middlewareList.first.handle(data.payload);
+                    }
+
                     this.subscriptions.getById(data.callbackId)?.payloadCallback(data.payload);
                 }catch(error){
                     console.error(error);
@@ -78,6 +86,12 @@ class GazeClient {
             return console.error(error);
         }
         
+    }
+
+    addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void ){
+        const newMiddleware = new Middleware();
+        newMiddleware.handler = handler;
+        this.middlewareList.add(newMiddleware);
     }
 
     private async reconnect(){
