@@ -3,16 +3,13 @@ const path = require('path');
 module.exports = {
     mode: 'production',
     devtool: 'source-map',
-    entry: {
-        GazeClient: "./src/GazeClient.ts",
-    },
+    entry: "./src/GazeClient.ts",
     output: {
-        path: path.resolve(__dirname, './dist'),
-        filename: "[name].js",
+        path: path.resolve(__dirname, 'dist'),
+        filename: "GazeClient.js",
         library: {
             name: 'GazeClient',
-            type: 'var',
-            export: 'default'
+            type: 'umd'
         }
     },
     resolve: {
