@@ -1,6 +1,6 @@
 const path = require('path');
 
-module.exports = {
+const defaultConfig = {
     mode: 'production',
     devtool: 'source-map',
     entry: "./src/GazeClient.ts",
@@ -9,7 +9,8 @@ module.exports = {
         filename: "GazeClient.js",
         library: {
             name: 'GazeClient',
-            type: 'umd'
+            type: 'var',
+            export: 'default'
         }
     },
     resolve: {
@@ -24,3 +25,15 @@ module.exports = {
         ]
     }
 };
+
+const amdConfig = Object.assign({}, defaultConfig);
+amdConfig.output = {
+    path: path.resolve(__dirname, 'dist'),
+    filename: "GazeClient.amd.js",
+    library: {
+        name: 'GazeClient',
+        type: 'amd'
+    }
+};
+
+module.exports = [defaultConfig, amdConfig];
