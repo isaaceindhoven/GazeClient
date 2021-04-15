@@ -4,6 +4,7 @@ declare class GazeClient {
     private connected;
     private subscriptions;
     private connectionResetCallback;
+    private middlewareList;
     gazeRequestor: GazeRequestor;
     constructor(hubUrl: string, token: string);
     connect(): Promise<GazeClient>;
@@ -11,6 +12,7 @@ declare class GazeClient {
         update: () => void;
     }>;
     private update;
+    addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void): void;
     private reconnect;
     onConnectionReset(callback: OnConnectionResetFunction): void;
 }
