@@ -31,8 +31,8 @@ amdConfig.output = {
     path: path.resolve(__dirname, 'dist'),
     filename: "GazeClient.amd.js",
     library: {
-        name: 'GazeClient',
-        type: 'amd'
+        type: 'amd',
+        export: 'default'
     }
 };
 
