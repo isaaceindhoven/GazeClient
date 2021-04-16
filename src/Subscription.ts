@@ -1,14 +1,13 @@
 import { Queue } from "./Queue";
-import { PayloadCallback } from "./Types";
+import { Callback } from "./Types";
 
 class Subscription {
     public topics : string[] = [];
     public queue : Queue = new Queue();
 
-    constructor(
-        public callbackId: string,
-        public payloadCallback: PayloadCallback<unknown>
-    ) { }
+    constructor(public payloadCallback: Callback<unknown>) {
+
+    }
 
     public topicsToRemove(newTopics: string[]): string[]{
         return this.topics.filter(t => !newTopics.includes(t));
@@ -26,21 +25,10 @@ class Subscriptions {
         return this.subscriptions.filter(s => s.topics.includes(topic));
     }
 
-    public create<T>(payloadCallback: PayloadCallback<T>): Subscription{
-        if (typeof payloadCallback !== "function"){
-            throw new Error("Callback must be a function");
-        }
-        const subscription = new Subscription(this.generateCallbackId(), payloadCallback);
+    public create<T>(payloadCallback: Callback<T>): Subscription{
+        const subscription = new Subscription(payloadCallback);
         this.subscriptions.push(subscription);
         return subscription;
-    }
-
-    private generateCallbackId() : string {
-        const id = Math.random().toString(36).substring(7);
-        if (this.subscriptions.find(s => s.callbackId == id) == null){
-            return id;
-        }
-        return this.generateCallbackId();
     }
 
     public getAll(): Subscription[]{

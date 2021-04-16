@@ -1,5 +1,3 @@
-import { SubscribeRequestData } from './Types';
-
 class GazeRequestor {
     constructor(private hubUrl: string, private token: string){
         
@@ -13,17 +11,17 @@ class GazeRequestor {
         return new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
     }
 
-    public async subscibe(data: SubscribeRequestData): Promise<void>{
-        await this.subscribeRequest("POST", data);
+    public async subscibe(topics: string[]): Promise<void>{
+        await this.subscribeRequest("POST", topics);
     }
 
-    public async unsubscibe(data: SubscribeRequestData): Promise<void>{
-        await this.subscribeRequest("DELETE", data);
+    public async unsubscibe(topics: string[]): Promise<void>{
+        await this.subscribeRequest("DELETE", topics);
     }
 
-    private async subscribeRequest(method: "POST" | "DELETE", data: SubscribeRequestData): Promise<void> {
+    private async subscribeRequest(method: "POST" | "DELETE", topics: string[]): Promise<void> {
         
-        if (data.topics.length == 0) return;
+        if (topics.length == 0) return;
 
         await fetch(`${this.hubUrl}/subscription`, {
             method,
@@ -31,7 +29,9 @@ class GazeRequestor {
                 'Authorization': `Bearer ${this.token}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+                topics
+            })
         });
     }
 }

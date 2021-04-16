@@ -1,19 +1,18 @@
 import { GazeRequestor } from "./GazeRequestor";
-import { PayloadCallback, OnConnectionResetFunction } from './Types';
+import { Callback } from './Types';
 declare class GazeClient {
     private connected;
     private subscriptions;
-    private connectionResetCallback;
     private middlewareList;
+    onConnectionReset: null | (() => void);
     gazeRequestor: GazeRequestor;
     constructor(hubUrl: string, token: string);
     connect(): Promise<GazeClient>;
-    on<T>(topics: string | string[] | (() => string[]), payloadCallback: PayloadCallback<T>): Promise<{
+    on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{
         update: () => void;
     }>;
     private update;
     addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void): void;
     private reconnect;
-    onConnectionReset(callback: OnConnectionResetFunction): void;
 }
 export default GazeClient;
