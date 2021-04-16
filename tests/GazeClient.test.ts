@@ -15,7 +15,7 @@ test("if topics can be parsed from string", done => {
         }).then(() => {
             gazeRequestorStub.sseStub.onmessage({
                 data: JSON.stringify({
-                    "callbackId" : gazeRequestorStub.subscriptionsRequests[0].callbackId,
+                    "topic" : "cool",
                     "payload":{"name" : "kevin"},
                 })
             })
@@ -37,7 +37,7 @@ test("if topics can be parsed from array", done => {
         }).then(() => {
             gazeRequestorStub.sseStub.onmessage({
                 data: JSON.stringify({
-                    "callbackId" : gazeRequestorStub.subscriptionsRequests[0].callbackId,
+                    "topic" : "cool",
                     "payload":{"name" : "kevin"},
                 })
             })
@@ -59,7 +59,7 @@ test("if topics can be parsed from string callback", done => {
         }).then(() => {
             gazeRequestorStub.sseStub.onmessage({
                 data: JSON.stringify({
-                    "callbackId" : gazeRequestorStub.subscriptionsRequests[0].callbackId,
+                    "topic" : "cool",
                     "payload":{"name" : "kevin"},
                 })
             })

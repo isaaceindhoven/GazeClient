@@ -11,7 +11,7 @@ declare class Subscription {
 }
 declare class Subscriptions {
     private subscriptions;
-    getById(callbackId: string): Subscription;
+    getByTopic(topic: string): Subscription[];
     create<T>(payloadCallback: PayloadCallback<T>): Subscription;
     private generateCallbackId;
     getAll(): Subscription[];

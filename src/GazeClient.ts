@@ -24,7 +24,7 @@ class GazeClient {
 
             setTimeout(() => this.gazeRequestor.ping(), 500);
 
-            SSE.onmessage = async message => {
+            SSE.onmessage = async (message: {data: string}) => {
                 try{
                     const data : EventData = JSON.parse(message.data);
 
@@ -32,7 +32,7 @@ class GazeClient {
                         data.payload = await this.middlewareList.first.handle(data.payload);
                     }
 
-                    this.subscriptions.getById(data.callbackId)?.payloadCallback(data.payload);
+                    this.subscriptions.getByTopic(data.topic).forEach(s => s.payloadCallback(data.payload));
                 }catch(error){
                     console.error(error);
                 }
@@ -74,8 +74,7 @@ class GazeClient {
             await subscription.queue.add(async() => {
                 await this.gazeRequestor.unsubscibe({ topics: topicsToRemove });
 
-                await this.gazeRequestor.subscibe({ 
-                    callbackId: subscription.callbackId, 
+                await this.gazeRequestor.subscibe({
                     topics: topicsToAdd 
                 });
             });
@@ -98,7 +97,6 @@ class GazeClient {
         if (this.subscriptions.getAll().length > 0) {
             for(const subscription of this.subscriptions.getAll()){
                 await this.gazeRequestor.subscibe({
-                    callbackId: subscription.callbackId,
                     topics: subscription.topics
                 });
             }

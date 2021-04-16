@@ -5,7 +5,7 @@
   "main": "dist/GazeClient.js",
   "scripts": {
     "test": "jest",
-    "build": "prod",
+    "build": "webpack",
     "prod": "webpack",
     "dev": "webpack --mode development",
     "watch": "webpack --watch",

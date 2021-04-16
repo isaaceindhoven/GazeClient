@@ -22,8 +22,8 @@ class Subscription {
 class Subscriptions {
     private subscriptions: Subscription[] = [];
 
-    public getById(callbackId: string): Subscription{
-        return this.subscriptions.find(s => s.callbackId == callbackId);
+    public getByTopic(topic: string): Subscription[]{
+        return this.subscriptions.filter(s => s.topics.includes(topic));
     }
 
     public create<T>(payloadCallback: PayloadCallback<T>): Subscription{

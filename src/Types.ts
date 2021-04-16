@@ -1,11 +1,10 @@
 type EventData = {
-    callbackId: string,
+    topic: string,
     payload: unknown
 };
 
 type SubscribeRequestData = {
-    topics: string[],
-    callbackId?: string
+    topics: string[]
 };
 
 type OnConnectionResetFunction = () => void;
