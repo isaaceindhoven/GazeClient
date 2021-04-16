@@ -5,7 +5,7 @@ class Middleware implements LinkedListItem {
 
     public handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void;
 
-    handle(payload: unknown){
+    handle(payload: unknown): Promise<unknown>{
         return new Promise<unknown>((resolve) => {
             this.handler(payload, (newPayload) => {
                 if (this.next) {

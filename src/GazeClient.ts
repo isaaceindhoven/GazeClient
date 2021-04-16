@@ -88,13 +88,13 @@ class GazeClient {
         
     }
 
-    public addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void ){
+    public addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void): void{
         const newMiddleware = new Middleware();
         newMiddleware.handler = handler;
         this.middlewareList.add(newMiddleware);
     }
 
-    private async reconnect(){
+    private async reconnect(): Promise<void>{
         if (this.subscriptions.getAll().length == 0) return;
 
         for(const subscription of this.subscriptions.getAll()){

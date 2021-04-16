@@ -6,7 +6,7 @@ class LinkedList<T extends LinkedListItem> {
     public first: null | T = null;
     public last: null | T = null;
 
-    add(item: T){
+    add(item: T): void{
 
         if (this.first === null){
             this.first = item;
