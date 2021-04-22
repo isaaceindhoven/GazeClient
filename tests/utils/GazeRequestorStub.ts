@@ -1,5 +1,3 @@
-import { SubscribeRequestData } from '../../src/Types';
-
 class GazeRequestorStub {
 
     public methodCalls: string[] = [];

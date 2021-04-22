@@ -4,7 +4,7 @@ class TopicsResolver {
 
     }
 
-    public static parse(topics: string | string[] | (() => string[])): TopicsResolver {
+    public static parse(topics: string | string[] | (() => string[]) ): TopicsResolver {
 
         if (Array.isArray(topics)){
             return new TopicsResolver(() => topics)

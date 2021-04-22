@@ -1,9 +1,11 @@
 import { Subscriptions, Subscription } from "./Subscription";
-import { GazeRequestor } from "./GazeRequestor";
+import { FetchGazeRequestor } from "./FetchGazeRequestor";
 import { Callback } from './Types';
 import { TopicsResolver } from "./TopicsResolver";
 import { Middleware } from "./Middleware";
 import { LinkedList } from "./LinkedList";
+import { GazeRequestor } from "./GazeRequestor";
+import { SseClient } from "./SseClient";
 
 class GazeClient {
     
@@ -11,22 +13,30 @@ class GazeClient {
     private subscriptions: Subscriptions = new Subscriptions();
     private middlewareList = new LinkedList<Middleware>();
     public onConnectionReset: null | (() => void) = null;
-    public gazeRequestor: GazeRequestor = null;
 
-    constructor(hubUrl: string, token: string) {
-        this.gazeRequestor = new GazeRequestor(hubUrl, token);
+    constructor(
+        private hubUrl: string, 
+        private token: string,
+        private sseClient: SseClient = null,
+        private gazeRequestor: GazeRequestor = null,
+    ) {
+        if (this.gazeRequestor === null){
+            this.gazeRequestor = new FetchGazeRequestor(this.hubUrl, this.token);
+        }
+
+        if (this.sseClient === null){
+            this.sseClient = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
+        }
     }
 
     public connect(): Promise<GazeClient> {
         return new Promise(async res => { // eslint-disable-line no-async-promise-executor
-            
-            const SSE : EventSource = this.gazeRequestor.connect();
 
             setTimeout(() => this.gazeRequestor.ping(), 500);
 
-            SSE.onmessage = async (message: {data: string}) => {
+            this.sseClient.onmessage = async (message: {data: string}) => {
                 try{
-                    const data : {topic: string, payload: unknown} = JSON.parse(message.data);
+                    const data: {topic: string, payload: unknown} = JSON.parse(message.data);
 
                     if (this.middlewareList.first){
                         data.payload = await this.middlewareList.first.handle(data.payload);
@@ -38,7 +48,7 @@ class GazeClient {
                 }
             };
 
-            SSE.onopen = async () => {
+            this.sseClient.onopen = async () => {
                 this.connected = true;
                 await this.reconnect();
                 res(this);
@@ -46,7 +56,7 @@ class GazeClient {
         });
     }
 
-    public async on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{update : () => void}> {
+    public async on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{update: () => void}> {
         
         if (!this.connected) throw new Error("Gaze is not connected to a hub");
 
@@ -65,7 +75,7 @@ class GazeClient {
         }
     }
 
-    private async update(subscription : Subscription, topicsResolver: TopicsResolver) {
+    private async update(subscription: Subscription, topicsResolver: TopicsResolver) {
 
         try{
             const newTopics = await topicsResolver.evaluate();

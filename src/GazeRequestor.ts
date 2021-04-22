@@ -1,39 +1,7 @@
-class GazeRequestor {
-    constructor(private hubUrl: string, private token: string){
-        
-    }
-
-    public async ping(): Promise<void>{
-        await fetch(`${this.hubUrl}/ping?token=${this.token}`);
-    }
-
-    public connect(): EventSource{
-        return new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
-    }
-
-    public async subscibe(topics: string[]): Promise<void>{
-        await this.subscribeRequest("POST", topics);
-    }
-
-    public async unsubscibe(topics: string[]): Promise<void>{
-        await this.subscribeRequest("DELETE", topics);
-    }
-
-    private async subscribeRequest(method: "POST" | "DELETE", topics: string[]): Promise<void> {
-        
-        if (topics.length == 0) return;
-
-        await fetch(`${this.hubUrl}/subscription`, {
-            method,
-            headers: {
-                'Authorization': `Bearer ${this.token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                topics
-            })
-        });
-    }
+interface GazeRequestor {
+    ping(): void | Promise<void>;
+    subscibe(topics: string[]): void | Promise<void>;
+    unsubscibe(topics: string[]): void | Promise<void>;
 }
 
-export { GazeRequestor };
+export { GazeRequestor }
