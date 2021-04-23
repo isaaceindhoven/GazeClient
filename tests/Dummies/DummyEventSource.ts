@@ -1,4 +1,4 @@
-import { SseClient } from "../../src/SseClient";
+import { SseClient } from '../../src/SseClient';
 
 class DummyEventSource implements SseClient {
     onmessage: any;

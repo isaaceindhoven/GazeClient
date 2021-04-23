@@ -1,4 +1,4 @@
-import { LinkedListItem } from "./LinkedList";
+import { LinkedListItem } from './LinkedList';
 
 class Middleware implements LinkedListItem {
     public next: null | Middleware;

@@ -17,9 +17,9 @@ npm run watch # to watch
 ## Example Usecase
 
 ```js
-const GazeClient = require("GazeClient");
+const GazeClient = require('GazeClient');
 
-let gaze = await new GazeClient("<HUB_URL>" , "<TOKEN_URL>").connect();
+let gaze = await new GazeClient('<HUB_URL>' , '<TOKEN>').connect();
 
 let products = [1,2,3];
 

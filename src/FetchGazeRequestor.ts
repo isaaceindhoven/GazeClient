@@ -7,15 +7,15 @@ class FetchGazeRequestor {
         await fetch(`${this.hubUrl}/ping?token=${this.token}`);
     }
 
-    public async subscibe(topics: string[]): Promise<void>{
-        await this.subscribeRequest("POST", topics);
+    public async subscribe(topics: string[]): Promise<void>{
+        await this.subscribeRequest('POST', topics);
     }
 
-    public async unsubscibe(topics: string[]): Promise<void>{
-        await this.subscribeRequest("DELETE", topics);
+    public async unsubscribe(topics: string[]): Promise<void>{
+        await this.subscribeRequest('DELETE', topics);
     }
 
-    private async subscribeRequest(method: "POST" | "DELETE", topics: string[]): Promise<void> {
+    private async subscribeRequest(method: 'POST' | 'DELETE', topics: string[]): Promise<void> {
         
         if (topics.length == 0) return;
 

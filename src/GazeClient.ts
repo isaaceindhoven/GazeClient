@@ -1,11 +1,11 @@
-import { Subscriptions, Subscription } from "./Subscription";
-import { FetchGazeRequestor } from "./FetchGazeRequestor";
+import { Subscriptions, Subscription } from './Subscription';
+import { FetchGazeRequestor } from './FetchGazeRequestor';
 import { Callback } from './Types';
-import { TopicsResolver } from "./TopicsResolver";
-import { Middleware } from "./Middleware";
-import { LinkedList } from "./LinkedList";
-import { GazeRequestor } from "./GazeRequestor";
-import { SseClient } from "./SseClient";
+import { TopicsResolver } from './TopicsResolver';
+import { Middleware } from './Middleware';
+import { LinkedList } from './LinkedList';
+import { GazeRequestor } from './GazeRequestor';
+import { SseClient } from './SseClient';
 
 class GazeClient {
     
@@ -58,10 +58,10 @@ class GazeClient {
 
     public async on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{update: () => void}> {
         
-        if (!this.connected) throw new Error("Gaze is not connected to a hub");
+        if (!this.connected) throw new Error('Gaze is not connected to a hub');
 
-        if (typeof payloadCallback !== "function"){
-            throw new Error("Callback must be a function");
+        if (typeof payloadCallback !== 'function'){
+            throw new Error('Callback must be a function');
         }
         
         const topicsResolver = TopicsResolver.parse(topics);
@@ -86,8 +86,8 @@ class GazeClient {
             if (topicsToRemove.length + topicsToAdd.length == 0) return;
 
             await subscription.queue.add(async() => {
-                await this.gazeRequestor.unsubscibe(topicsToRemove);
-                await this.gazeRequestor.subscibe(topicsToAdd);
+                await this.gazeRequestor.unsubscribe(topicsToRemove);
+                await this.gazeRequestor.subscribe(topicsToAdd);
             });
 
             subscription.topics = newTopics;
@@ -108,7 +108,7 @@ class GazeClient {
         if (this.subscriptions.getAll().length == 0) return;
 
         for(const subscription of this.subscriptions.getAll()){
-            await this.gazeRequestor.subscibe(subscription.topics);
+            await this.gazeRequestor.subscribe(subscription.topics);
         }
         
         if (this.onConnectionReset) await this.onConnectionReset();

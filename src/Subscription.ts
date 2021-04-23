@@ -1,5 +1,5 @@
-import { Queue } from "./Queue";
-import { Callback } from "./Types";
+import { Queue } from './Queue';
+import { Callback } from './Types';
 
 class Subscription {
     public topics : string[] = [];
