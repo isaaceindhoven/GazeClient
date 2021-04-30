@@ -1,6 +1,6 @@
 {
   "name": "@isaac/gaze-client",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Gaze Frontend Library",
   "main": "dist/GazeClient.js",
   "scripts": {
@@ -13,11 +13,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.isaac.local/study/php-chapter/real-time-ui-updates/gazeclient.git"
+    "url": "git@github.com/isaaceindhoven/GazeClient.git"
   },
   "author": "ISAAC",
-  "license": "proprietary",
-  "private": true,
+  "license": "MIT",
   "devDependencies": {
     "@babel/preset-env": "^7.13.12",
     "@babel/preset-typescript": "^7.13.0",
