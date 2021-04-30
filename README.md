@@ -1,7 +1,7 @@
 # GazeClient
 
 GazeClient is part of Gaze.
-GazeClient is the frontend library that is responsible for receiving data from [GazeHub](https://gitlab.isaac.nl/study/php-chapter/real-time-ui-updates/gazehub).
+GazeClient is the frontend library that is responsible for receiving data from [GazeHub](https://github.com/isaaceindhoven/GazeHub).
 
 ## Documentation & Installation
 
