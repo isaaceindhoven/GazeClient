@@ -5,4 +5,4 @@ GazeClient is the frontend library that is responsible for receiving data from [
 
 ## Documentation & Installation
 
-[Click here](#) to go to the full documentation and installation instruction for Gaze and GazeClient.
+[Click here](https://isaaceindhoven.github.io/GazeHub/docs/#/gazeclient) to go to the full documentation and installation instruction for Gaze and GazeClient.
