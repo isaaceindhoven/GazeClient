@@ -1,5 +1,5 @@
 {
-  "name": "@isaac/gaze-client",
+  "name": "@isaac.frontend/gaze-client",
   "version": "0.1.0",
   "description": "Gaze Frontend Library",
   "main": "dist/GazeClient.js",
