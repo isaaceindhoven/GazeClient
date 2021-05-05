@@ -1,4 +1,4 @@
-import { SseClient } from "./SseClient";
+import { SseClient } from './SseClient';
 
 class BetterEventSource implements SseClient {
 
@@ -38,7 +38,7 @@ class BetterEventSource implements SseClient {
             }
         };
 
-        xhr.addEventListener("error", async error => {
+        xhr.addEventListener('error', async error => {
             await this.sleep(this.retryInterval);
             this.init();
         });
