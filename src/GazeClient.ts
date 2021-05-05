@@ -6,6 +6,7 @@ import { Middleware } from './Middleware';
 import { LinkedList } from './LinkedList';
 import { GazeRequestor } from './GazeRequestor';
 import { SseClient } from './SseClient';
+import { BetterEventSource } from './BetterEventSource';
 
 class GazeClient {
     
@@ -25,7 +26,9 @@ class GazeClient {
         }
 
         if (this.sseClient === null){
-            this.sseClient = new EventSource(`${this.hubUrl}/sse?token=${this.token}`);
+            this.sseClient = new BetterEventSource(`${this.hubUrl}/sse`, {
+                'Authorization' : `Bearer ${this.token}`
+            });
         }
     }
 
