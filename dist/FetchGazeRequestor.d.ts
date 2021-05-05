@@ -1,4 +1,5 @@
-declare class FetchGazeRequestor {
+import { GazeRequestor } from "./GazeRequestor";
+declare class FetchGazeRequestor implements GazeRequestor {
     private hubUrl;
     private token;
     constructor(hubUrl: string, token: string);
