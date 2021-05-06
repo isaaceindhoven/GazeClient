@@ -6,7 +6,13 @@ class FetchGazeRequestor implements GazeRequestor {
     }
 
     public async ping(): Promise<void>{
-        await fetch(`${this.hubUrl}/ping?token=${this.token}`);
+        await fetch(`${this.hubUrl}/ping`, 
+            { 
+                'headers' : { 
+                    "Authorization" : `Bearer ${this.token}` 
+                } 
+            }
+        );
     }
 
     public async subscribe(topics: string[]): Promise<void>{
