@@ -25,8 +25,6 @@ class FetchGazeRequestor implements GazeRequestor {
             token
         };
 
-        console.log(payload);
-
         await fetch(`${this.hubUrl}/auth`, {
             method: 'POST',
             headers: {
