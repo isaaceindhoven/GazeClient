@@ -1,18 +1,14 @@
 import { GazeRequestor } from "./GazeRequestor";
 
 class FetchGazeRequestor implements GazeRequestor {
-    constructor(private hubUrl: string, private token: string){
+    private clientId: string;
+
+    constructor(private hubUrl: string){
         
     }
 
-    public async ping(): Promise<void>{
-        await fetch(`${this.hubUrl}/ping`, 
-            { 
-                'headers' : { 
-                    "Authorization" : `Bearer ${this.token}` 
-                } 
-            }
-        );
+    public setClientId(clientId: string): void {
+        this.clientId = clientId;
     }
 
     public async subscribe(topics: string[]): Promise<void>{
@@ -23,6 +19,23 @@ class FetchGazeRequestor implements GazeRequestor {
         await this.subscribeRequest('DELETE', topics);
     }
 
+    public async authenticate(token: string): Promise<void> {
+        const payload = {
+            'id': this.clientId,
+            token
+        };
+
+        console.log(payload);
+
+        await fetch(`${this.hubUrl}/auth`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+    }
+
     private async subscribeRequest(method: 'POST' | 'DELETE', topics: string[]): Promise<void> {
         
         if (topics.length == 0) return;
@@ -30,7 +43,7 @@ class FetchGazeRequestor implements GazeRequestor {
         await fetch(`${this.hubUrl}/subscription`, {
             method,
             headers: {
-                'Authorization': `Bearer ${this.token}`,
+                'Authorization': `Bearer ${this.clientId}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({

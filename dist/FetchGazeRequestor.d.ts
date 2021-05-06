@@ -1,11 +1,12 @@
 import { GazeRequestor } from "./GazeRequestor";
 declare class FetchGazeRequestor implements GazeRequestor {
     private hubUrl;
-    private token;
-    constructor(hubUrl: string, token: string);
-    ping(): Promise<void>;
+    private clientId;
+    constructor(hubUrl: string);
+    setClientId(clientId: string): void;
     subscribe(topics: string[]): Promise<void>;
     unsubscribe(topics: string[]): Promise<void>;
+    authenticate(token: string): Promise<void>;
     private subscribeRequest;
 }
 export { FetchGazeRequestor };
