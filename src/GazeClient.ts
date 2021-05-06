@@ -6,7 +6,6 @@ import { Middleware } from './Middleware';
 import { LinkedList } from './LinkedList';
 import { GazeRequestor } from './GazeRequestor';
 import { SseClient } from './SseClient';
-import { BetterEventSource } from './BetterEventSource';
 
 class GazeClient {
     
@@ -16,37 +15,36 @@ class GazeClient {
     public onConnectionReset: null | (() => void) = null;
 
     constructor(
-        private hubUrl: string, 
-        private token: string,
+        private hubUrl: string,
         private sseClient: SseClient = null,
         private gazeRequestor: GazeRequestor = null,
     ) {
         if (this.gazeRequestor === null){
-            this.gazeRequestor = new FetchGazeRequestor(this.hubUrl, this.token);
-        }
-
-        if (this.sseClient === null){
-            this.sseClient = new BetterEventSource(`${this.hubUrl}/sse`, {
-                'Authorization' : `Bearer ${this.token}`
-            });
+            this.gazeRequestor = new FetchGazeRequestor(this.hubUrl);
         }
     }
 
     public connect(): Promise<GazeClient> {
         return new Promise(async res => { // eslint-disable-line no-async-promise-executor
-
-            setTimeout(() => this.gazeRequestor.ping(), 500);
+            if (this.sseClient === null) {
+                this.sseClient = new EventSource(`${this.hubUrl}/sse`);
+            }
 
             this.sseClient.onmessage = async (message: {data: string}) => {
-                try{
+                try {
                     const data: {topic: string, payload: unknown} = JSON.parse(message.data);
 
-                    if (this.middlewareList.first){
+                    if (data['id']) {
+                        this.gazeRequestor.setClientId(data['id']);
+                        return res(this);
+                    }
+
+                    if (this.middlewareList.first) {
                         data.payload = await this.middlewareList.first.handle(data.payload);
                     }
 
                     this.subscriptions.getByTopic(data.topic).forEach(s => s.payloadCallback(data.payload));
-                }catch(error){
+                } catch(error) {
                     console.error(error);
                 }
             };
@@ -54,7 +52,6 @@ class GazeClient {
             this.sseClient.onopen = async () => {
                 this.connected = true;
                 await this.reconnect();
-                res(this);
             };
         });
     }
@@ -105,6 +102,10 @@ class GazeClient {
         const newMiddleware = new Middleware();
         newMiddleware.handler = handler;
         this.middlewareList.add(newMiddleware);
+    }
+
+    public async setToken(token: string): Promise<void> {
+        await this.gazeRequestor.authenticate(token);
     }
 
     private async reconnect(): Promise<void>{
