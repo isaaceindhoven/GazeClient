@@ -13,8 +13,10 @@ declare class GazeClient {
     connect(): Promise<GazeClient>;
     on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{
         update: () => void;
+        destroy: () => void;
     }>;
     private update;
+    private destroy;
     addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void): void;
     setToken(token: string): Promise<void>;
     private reconnect;
