@@ -56,7 +56,7 @@ class GazeClient {
         });
     }
 
-    public async on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{update: () => void}> {
+    public async on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{update: () => void, destroy: () => void}> {
         
         if (!this.connected) throw new Error('Gaze is not connected to a hub');
 
@@ -71,7 +71,8 @@ class GazeClient {
         await this.update(subscription, topicsResolver);
 
         return {
-            update: () => this.update(subscription, topicsResolver)
+            update: () => this.update(subscription, topicsResolver),
+            destroy: () => this.destroy(subscription)
         }
     }
 
@@ -96,6 +97,10 @@ class GazeClient {
             return console.error(error);
         }
         
+    }
+
+    private async destroy(subscription: Subscription) {
+        await this.gazeRequestor.unsubscribe(subscription.topics);
     }
 
     public addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void): void{
