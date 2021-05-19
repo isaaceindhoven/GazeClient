@@ -81,18 +81,28 @@ class GazeClient {
         try{
             const newTopics = await topicsResolver.evaluate();
 
-            const topicsToRemove = subscription.topicsToRemove(newTopics);
-            const topicsToAdd = subscription.topicsToAdd(newTopics);
+            const flatten = (arr) => arr.reduce((a, b) => a.concat(b), []);
 
-            if (topicsToRemove.length + topicsToAdd.length == 0) return;
+            let topicsToRemove = subscription.topicsToRemove(newTopics);
+            const otherSubscribedTopics = flatten(this.subscriptions.getAll().filter(s => s !== subscription).map(s => s.topics));
+            topicsToRemove = topicsToRemove.filter(t => !otherSubscribedTopics.includes(t));
+
+            let topicsToAdd = subscription.topicsToAdd(newTopics);
+            const alreadySubscribedTopics = flatten(this.subscriptions.getAll().map(s => s.topics));
+            topicsToAdd = topicsToAdd.filter(t => !alreadySubscribedTopics.includes(t))
 
             await subscription.queue.add(async() => {
-                await this.gazeRequestor.unsubscribe(topicsToRemove);
-                await this.gazeRequestor.subscribe(topicsToAdd);
+                if (topicsToRemove.length > 0){
+                    await this.gazeRequestor.unsubscribe(topicsToRemove);
+                }
+
+                if (topicsToAdd.length > 0){
+                    await this.gazeRequestor.subscribe(topicsToAdd);
+                }
             });
 
             subscription.topics = newTopics;
-    
+
         }catch(error){
             return console.error(error);
         }
@@ -100,7 +110,8 @@ class GazeClient {
     }
 
     private async destroy(subscription: Subscription) {
-        await this.gazeRequestor.unsubscribe(subscription.topics);
+        this.update(subscription, new TopicsResolver(() => []));
+        this.subscriptions.remove(subscription);
     }
 
     public addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void): void{
@@ -109,7 +120,7 @@ class GazeClient {
         this.middlewareList.add(newMiddleware);
     }
 
-    public async setToken(token: string): Promise<void> {
+    public async authenticate(token: string): Promise<void> {
         await this.gazeRequestor.authenticate(token);
     }
 
