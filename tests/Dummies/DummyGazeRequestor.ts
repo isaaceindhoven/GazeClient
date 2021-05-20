@@ -1,4 +1,4 @@
-import { GazeRequestor } from '../../src/GazeRequestor';
+import { GazeRequestor } from '../../src/Requestors/GazeRequestor';
 
 type Call = {
     name: string,

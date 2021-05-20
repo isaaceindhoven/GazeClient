@@ -1,10 +1,11 @@
-import { Subscriptions, Subscription } from './Subscription';
-import { FetchGazeRequestor } from './FetchGazeRequestor';
+import { Subscription } from './Subscription';
+import { Subscriptions } from './Subscriptions';
+import { FetchGazeRequestor } from './Requestors/FetchGazeRequestor';
 import { Callback } from './Types';
 import { TopicsResolver } from './TopicsResolver';
-import { Middleware } from './Middleware';
-import { LinkedList } from './LinkedList';
-import { GazeRequestor } from './GazeRequestor';
+import { Middleware } from './Middleware/Middleware';
+import { LinkedList } from './Middleware/LinkedList';
+import { GazeRequestor } from './Requestors/GazeRequestor';
 import { SseClient } from './SseClient';
 
 class GazeClient {
@@ -25,7 +26,8 @@ class GazeClient {
     }
 
     public connect(): Promise<GazeClient> {
-        return new Promise(async res => { // eslint-disable-line no-async-promise-executor
+        return new Promise(res => {
+            
             if (this.sseClient === null) {
                 this.sseClient = new EventSource(`${this.hubUrl}/sse`);
             }
@@ -43,7 +45,9 @@ class GazeClient {
                         data.payload = await this.middlewareList.first.handle(data.payload);
                     }
 
-                    this.subscriptions.getByTopic(data.topic).forEach(s => s.payloadCallback(data.payload));
+                    this.subscriptions
+                        .getByTopic(data.topic)
+                        .forEach(s => s.callback(data.payload));
                 } catch(error) {
                     console.error(error);
                 }
@@ -56,17 +60,17 @@ class GazeClient {
         });
     }
 
-    public async on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{update: () => void, destroy: () => void}> {
+    public async on<T>(topics: string | string[] | (() => string[]), callback: Callback<T>): Promise<{update: () => void, destroy: () => void}> {
         
         if (!this.connected) throw new Error('Gaze is not connected to a hub');
 
-        if (typeof payloadCallback !== 'function'){
+        if (typeof callback !== 'function'){
             throw new Error('Callback must be a function');
         }
         
         const topicsResolver = TopicsResolver.parse(topics);
 
-        const subscription = this.subscriptions.create(payloadCallback);
+        const subscription = this.subscriptions.create(callback);
 
         await this.update(subscription, topicsResolver);
 
@@ -79,17 +83,11 @@ class GazeClient {
     private async update(subscription: Subscription, topicsResolver: TopicsResolver) {
 
         try{
+
             const newTopics = await topicsResolver.evaluate();
 
-            const flatten = (arr) => arr.reduce((a, b) => a.concat(b), []);
-
-            let topicsToRemove = subscription.topicsToRemove(newTopics);
-            const otherSubscribedTopics = flatten(this.subscriptions.getAll().filter(s => s !== subscription).map(s => s.topics));
-            topicsToRemove = topicsToRemove.filter(t => !otherSubscribedTopics.includes(t));
-
-            let topicsToAdd = subscription.topicsToAdd(newTopics);
-            const alreadySubscribedTopics = flatten(this.subscriptions.getAll().map(s => s.topics));
-            topicsToAdd = topicsToAdd.filter(t => !alreadySubscribedTopics.includes(t))
+            const topicsToRemove = this.subscriptions.getUnusedTopics(subscription, newTopics);
+            const topicsToAdd = this.subscriptions.getNewTopics(newTopics);
 
             await subscription.queue.add(async() => {
                 if (topicsToRemove.length > 0){
@@ -110,7 +108,7 @@ class GazeClient {
     }
 
     private async destroy(subscription: Subscription) {
-        this.update(subscription, new TopicsResolver(() => []));
+        await this.update(subscription, new TopicsResolver(() => []));
         this.subscriptions.remove(subscription);
     }
 

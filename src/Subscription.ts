@@ -5,39 +5,13 @@ class Subscription {
     public topics : string[] = [];
     public queue : Queue = new Queue();
 
-    constructor(public payloadCallback: Callback<unknown>) {
+    constructor(public callback: Callback<unknown>) {
 
     }
 
-    public topicsToRemove(newTopics: string[]): string[]{
+    public getUnusedTopics(newTopics: string[]): string[]{
         return this.topics.filter(t => !newTopics.includes(t));
     }
-
-    public topicsToAdd(newTopics: string[]): string[]{
-        return newTopics.filter(t => !this.topics.includes(t));
-    }
 }
 
-class Subscriptions {
-    private subscriptions: Subscription[] = [];
-
-    public getByTopic(topic: string): Subscription[]{
-        return this.subscriptions.filter(s => s.topics.includes(topic));
-    }
-
-    public create<T>(payloadCallback: Callback<T>): Subscription{
-        const subscription = new Subscription(payloadCallback);
-        this.subscriptions.push(subscription);
-        return subscription;
-    }
-
-    public getAll(): Subscription[]{
-        return this.subscriptions;
-    }
-
-    public remove(subscription: Subscription){
-        this.subscriptions = this.subscriptions.filter(s => s !== subscription);
-    }
-}
-
-export { Subscription, Subscriptions }
+export { Subscription }

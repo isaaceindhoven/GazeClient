@@ -1,18 +1,10 @@
 import { Queue } from './Queue';
 import { Callback } from './Types';
 declare class Subscription {
-    payloadCallback: Callback<unknown>;
+    callback: Callback<unknown>;
     topics: string[];
     queue: Queue;
-    constructor(payloadCallback: Callback<unknown>);
-    topicsToRemove(newTopics: string[]): string[];
-    topicsToAdd(newTopics: string[]): string[];
+    constructor(callback: Callback<unknown>);
+    getUnusedTopics(newTopics: string[]): string[];
 }
-declare class Subscriptions {
-    private subscriptions;
-    getByTopic(topic: string): Subscription[];
-    create<T>(payloadCallback: Callback<T>): Subscription;
-    getAll(): Subscription[];
-    remove(subscription: Subscription): void;
-}
-export { Subscription, Subscriptions };
+export { Subscription };
