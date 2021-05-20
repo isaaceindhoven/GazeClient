@@ -18,7 +18,7 @@ declare class GazeClient {
     private update;
     private destroy;
     addMiddleware(handler: (payload: unknown, next: ((newPayload: unknown) => void)) => void): void;
-    setToken(token: string): Promise<void>;
+    authenticate(token: string): Promise<void>;
     private reconnect;
 }
 export default GazeClient;

@@ -13,5 +13,6 @@ declare class Subscriptions {
     getByTopic(topic: string): Subscription[];
     create<T>(payloadCallback: Callback<T>): Subscription;
     getAll(): Subscription[];
+    remove(subscription: Subscription): void;
 }
 export { Subscription, Subscriptions };

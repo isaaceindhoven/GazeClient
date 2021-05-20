@@ -106,3 +106,56 @@ test('test if middleware can be used as a filter', async () => {
     expect(messages[0].topics).toBe('event1');
     expect(messages[0].payload).toMatchObject({name : 'bob'});
 })
+
+test('test if subscribe requestor is not called when subscribing to same topic twice', async () => {
+    const { dummyGazeRequestor, gaze } = await createGaze();
+    
+    await gaze.on(['event1', 'event2'], () => {});
+    await gaze.on(['event1', 'event2'], () => {});
+
+    let subCalls = dummyGazeRequestor.calls.filter(c => c.name == 'subscribe');
+    expect(subCalls.length).toBe(1);
+});
+
+test('test if only a request is made for a new topic', async () => {
+    const { dummyGazeRequestor, gaze } = await createGaze();
+    await gaze.on(['A', 'B'], () => {});
+    await gaze.on(['A', 'B', 'C'], () => {});
+    let subCalls = dummyGazeRequestor.calls.filter(c => c.name == 'subscribe');
+    expect(subCalls.length).toBe(2);
+    expect(subCalls[0].payload).toEqual(['A', 'B']);
+    expect(subCalls[1].payload).toEqual(['C']);
+});
+
+test('test if only request are removed that are not in use anymore', async () => {
+    const { dummyGazeRequestor, gaze } = await createGaze();
+    const s1 = await gaze.on(['A', 'B'], () => {});
+    const s2 = await gaze.on(['A', 'B', 'C'], () => {});
+    
+    await s1.destroy();
+
+    let subCalls = dummyGazeRequestor.calls.filter(c => c.name == 'subscribe');
+    expect(subCalls.length).toBe(2);
+
+    let unsubCalls = dummyGazeRequestor.calls.filter(c => c.name == 'unsubscribe');
+    expect(unsubCalls.length).toBe(0);
+});
+
+test('test if only request are removed that are not in use anymore', async () => {
+    const { dummyGazeRequestor, gaze } = await createGaze();
+
+    let topics = ['A', 'B']
+
+    const s1 = await gaze.on(() => topics, () => {});
+    const s2 = await gaze.on(['A', 'B'], () => {});
+    
+    topics = ['A'];
+    
+    await s1.update();
+
+    let subCalls = dummyGazeRequestor.calls.filter(c => c.name == 'subscribe');
+    expect(subCalls.length).toBe(1);
+
+    let unsubCalls = dummyGazeRequestor.calls.filter(c => c.name == 'unsubscribe');
+    expect(unsubCalls.length).toBe(0);
+});

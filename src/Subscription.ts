@@ -34,6 +34,10 @@ class Subscriptions {
     public getAll(): Subscription[]{
         return this.subscriptions;
     }
+
+    public remove(subscription: Subscription){
+        this.subscriptions = this.subscriptions.filter(s => s !== subscription);
+    }
 }
 
 export { Subscription, Subscriptions }
