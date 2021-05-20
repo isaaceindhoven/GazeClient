@@ -19,6 +19,9 @@ jobs:
       - name: "Install dependencies"
         run: "npm install"
 
+      - name: "Check if library is build for production"
+        run: "npm run build && git status --porcelain | wc -l | read CHANGED_FILES && [ -$CHANGED_FILES -gt 0 ] && CHANGED_FILES=1;exit $CHANGED_FILES"
+
       - name: "Run linter"
         run: "npm run lint"
 
