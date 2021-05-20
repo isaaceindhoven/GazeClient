@@ -9,7 +9,9 @@
     "prod": "webpack",
     "dev": "webpack --mode development",
     "watch": "webpack --watch",
-    "lint": "eslint ./src --ext .ts"
+    "lint": "eslint ./src --ext .ts",
+    "version": "npm install --package-lock-only && git add package.json package-lock.json && git commit -m \"Update version\" && git checkout -b release && npm run build && git add -f dist/",
+    "postversion": "git push --tags && git checkout master && git branch -D release && git push"
   },
   "repository": {
     "type": "git",
