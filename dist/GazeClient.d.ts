@@ -1,5 +1,5 @@
 import { Callback } from './Types';
-import { GazeRequestor } from './GazeRequestor';
+import { GazeRequestor } from './Requestors/GazeRequestor';
 import { SseClient } from './SseClient';
 declare class GazeClient {
     private hubUrl;
@@ -11,7 +11,7 @@ declare class GazeClient {
     onConnectionReset: null | (() => void);
     constructor(hubUrl: string, sseClient?: SseClient, gazeRequestor?: GazeRequestor);
     connect(): Promise<GazeClient>;
-    on<T>(topics: string | string[] | (() => string[]), payloadCallback: Callback<T>): Promise<{
+    on<T>(topics: string | string[] | (() => string[]), callback: Callback<T>): Promise<{
         update: () => void;
         destroy: () => void;
     }>;
