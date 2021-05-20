@@ -7,8 +7,6 @@ import { LinkedList } from './LinkedList';
 import { GazeRequestor } from './GazeRequestor';
 import { SseClient } from './SseClient';
 
-console.log("Test");
-
 class GazeClient {
     
     private connected = false;
