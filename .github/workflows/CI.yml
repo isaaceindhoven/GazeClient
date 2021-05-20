@@ -20,7 +20,6 @@ jobs:
         run: "npm ci"
 
       - name: "Check if library is build for production"
-        # run: "npm run build && git status --porcelain | wc -l"
         run: "npm run build && git status --porcelain | wc -l | read CHANGED_FILES && exit $CHANGED_FILES"
 
       - name: "Run linter"
