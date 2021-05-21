@@ -1,4 +1,6 @@
-# GazeClient
+![GazeClient](./.github/client.svg)
+
+[![CI](https://github.com/isaaceindhoven/GazeClient/actions/workflows/CI.yml/badge.svg)](https://github.com/isaaceindhoven/GazeClient/actions/workflows/CI.yml) [![npm version](https://badge.fury.io/js/%40isaac.frontend%2Fgaze-client.svg)](https://badge.fury.io/js/%40isaac.frontend%2Fgaze-client)
 
 GazeClient is part of Gaze.
 GazeClient is the frontend library that is responsible for receiving data from [GazeHub](https://github.com/isaaceindhoven/GazeHub).
