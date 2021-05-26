@@ -13,6 +13,7 @@ class GazeClient {
     private connected = false;
     private subscriptions: Subscriptions = new Subscriptions();
     private middlewareList = new LinkedList<Middleware>();
+    private token: string;
     public onConnectionReset: null | (() => void) = null;
 
     constructor(
@@ -119,10 +120,16 @@ class GazeClient {
     }
 
     public async authenticate(token: string): Promise<void> {
-        await this.gazeRequestor.authenticate(token);
+        this.token = token;
+        await this.gazeRequestor.authenticate(this.token);
     }
 
     private async reconnect(): Promise<void>{
+
+        if (this.token){
+            await this.gazeRequestor.authenticate(this.token);
+        }
+
         if (this.subscriptions.getAll().length == 0) return;
 
         for(const subscription of this.subscriptions.getAll()){
@@ -130,6 +137,12 @@ class GazeClient {
         }
         
         if (this.onConnectionReset) await this.onConnectionReset();
+    }
+
+    public disconnect(){
+        this.sseClient.close();
+        this.subscriptions = new Subscriptions();
+        this.token = null;
     }
 }
 
