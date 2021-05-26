@@ -18,7 +18,7 @@ async function createGaze(autoConnect = true){
 
     const emit = async (payload: unknown) => await dummyEventSource.onmessage({data: JSON.stringify(payload)});
 
-    return { dummyGazeRequestor, emit, gaze };
+    return { dummyGazeRequestor, dummyEventSource, emit, gaze };
 }
 
 export { createGaze }
