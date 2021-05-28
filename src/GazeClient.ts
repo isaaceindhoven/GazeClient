@@ -44,6 +44,7 @@ class GazeClient {
 
                     if (data['id']) {
                         this.gazeRequestor.setClientId(data['id']);
+                        await this.reconnect();
                         return res(this);
                     }
 
@@ -61,7 +62,6 @@ class GazeClient {
 
             this.sseClient.onopen = async () => {
                 this.connected = true;
-                await this.reconnect();
             };
         });
 

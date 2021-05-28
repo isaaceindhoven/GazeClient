@@ -138,23 +138,23 @@ test('test if only request are removed that are not in use anymore', async () =>
 });
 
 test('test if client re-subscribes after disconnect', async () => {
-    const { dummyGazeRequestor, dummyEventSource, gaze } = await createGaze();
+    const { dummyGazeRequestor, emit, gaze } = await createGaze();
 
     await gaze.on('Event1', () => {});
 
-    await dummyEventSource.onopen();
+    await emit({ id: 'Kevin' });
 
     expect(dummyGazeRequestor.getCallsByName('subscribe').length).toBe(2);
     expect(dummyGazeRequestor.getCallsByName('authenticate').length).toBe(0);
 });
 
 test('test if client re-authenticates after disconnect', async () => {
-    const { dummyGazeRequestor, dummyEventSource, gaze } = await createGaze();
+    const { dummyGazeRequestor, emit, gaze } = await createGaze();
 
     await gaze.authenticate("X");
     await gaze.on('Event1', () => {});
 
-    await dummyEventSource.onopen();
+    await emit({ id: 'Kevin' });
 
     expect(dummyGazeRequestor.getCallsByName('authenticate').length).toBe(2);
 });
