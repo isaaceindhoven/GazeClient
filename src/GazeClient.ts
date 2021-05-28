@@ -14,6 +14,7 @@ class GazeClient {
     private subscriptions: Subscriptions = new Subscriptions();
     private middlewareList = new LinkedList<Middleware>();
     private token: string;
+    private connecting: Promise<GazeClient>;
     public onConnectionReset: null | (() => void) = null;
 
     constructor(
@@ -27,7 +28,11 @@ class GazeClient {
     }
 
     public connect(): Promise<GazeClient> {
-        return new Promise(res => {
+        if (this.connecting) {
+            return this.connecting;
+        }
+
+        this.connecting = new Promise(res => {
             
             if (this.sseClient === null) {
                 this.sseClient = new EventSource(`${this.hubUrl}/sse`);
@@ -59,11 +64,12 @@ class GazeClient {
                 await this.reconnect();
             };
         });
+
+        return this.connecting;
     }
 
     public async on<T>(topics: string | string[] | (() => string[]), callback: Callback<T>): Promise<{update: () => void, destroy: () => void}> {
-        
-        if (!this.connected) throw new Error('Gaze is not connected to a hub');
+        await this.connect();
 
         if (typeof callback !== 'function'){
             throw new Error('Callback must be a function');
@@ -120,6 +126,8 @@ class GazeClient {
     }
 
     public async authenticate(token: string): Promise<void> {
+        await this.connect();
+
         this.token = token;
         await this.gazeRequestor.authenticate(this.token);
     }
@@ -139,7 +147,18 @@ class GazeClient {
         if (this.onConnectionReset) await this.onConnectionReset();
     }
 
-    public disconnect(){
+    public async unauthenticate(): Promise<void> {
+        if (!this.token || !this.connected) return;
+        await this.gazeRequestor.unauthenticate();
+        this.token = null;
+    }
+
+    public async reset(): Promise<void> {
+        await this.gazeRequestor.unsubscribe(this.subscriptions.getAllTopics());
+        this.subscriptions = new Subscriptions();
+    }
+
+    public disconnect(): void {
         this.sseClient.close();
         this.subscriptions = new Subscriptions();
         this.token = null;

@@ -34,6 +34,15 @@ class FetchGazeRequestor implements GazeRequestor {
         });
     }
 
+    public async unauthenticate(): Promise<void> {
+        await fetch(`${this.hubUrl}/auth`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${this.clientId}`
+            }
+        });
+    }
+
     private async subscribeRequest(method: 'POST' | 'DELETE', topics: string[]): Promise<void> {
         
         if (topics.length == 0) return;

@@ -20,6 +20,10 @@ class Subscriptions {
         return this.subscriptions;
     }
 
+    public getAllTopics(): string[] {
+        return flatten(this.subscriptions.map(s => s.topics));
+    }
+
     public getUnusedTopics(subscription: Subscription, newTopics: string[]): string[]{
         const topicsToRemove = subscription.getUnusedTopics(newTopics);
         const subscribedTopics = flatten(this.subscriptions.filter(s => s !== subscription).map(s => s.topics));
@@ -27,8 +31,7 @@ class Subscriptions {
     }
 
     public getNewTopics(newTopics: string[]): string[]{
-        const alreadySubscribedTopics = flatten(this.subscriptions.map(s => s.topics));
-        return newTopics.filter(t => !alreadySubscribedTopics.includes(t));
+        return newTopics.filter(t => !this.getAllTopics().includes(t));
     }
 
     public remove(subscription: Subscription): void{
