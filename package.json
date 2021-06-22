@@ -1,6 +1,6 @@
 {
   "name": "@isaac.frontend/gaze-client",
-  "version": "0.6.1",
+  "version": "1.0.0",
   "description": "Gaze Frontend Library",
   "main": "dist/GazeClient.js",
   "scripts": {
